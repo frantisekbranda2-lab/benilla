@@ -227,6 +227,10 @@ pub(crate) fn text_px(h: f32, basis: f32) -> f32 {
     (h * basis).round().min(32.0)
 }
 
+/// Hero Defense: the plates are off, its own health bars draw instead.
+// Off in the tests, which pin the stock plates.
+const HD_BARS_REPLACE_PLATES: bool = !cfg!(test);
+
 /// The plate verbs inside their calls ([`benilla_ui::script::ScriptCall::Nameplates`]): each
 /// setter (`0x6054f0`, `0x605510`) writes its bit of the live dword before the verb returns.
 #[derive(SystemParam)]
@@ -241,6 +245,13 @@ impl PlateSteps<'_> {
         let Some(mode) = self.mode.as_deref_mut() else {
             return;
         };
+        // Hero Defense, not in 1.12: the health bars over units (`hero_defense/bars.rs`) replace
+        // the plates, so the verbs (the V keys, the saved `NAMEPLATES_ON`) leave both bits off.
+        if HD_BARS_REPLACE_PLATES {
+            let _ = write;
+            *mode = VPlateMode::default();
+            return;
+        }
         let now = VPlateMode::from_bits(write.apply(mode.bits()));
         if *mode != now {
             info!(

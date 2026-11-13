@@ -16,7 +16,8 @@
 //! - Kolize: jednotky ve WoW kolize nemaji, vlastni model dostane pevny valec.
 //!
 //! Znazorneni aren na zemi je v [`grid`], vyber karty z knizky kouzel v [`cards`], vlastni
-//! nacitaci obrazovka v [`loading`].
+//! nacitaci obrazovka v [`loading`], ukazatele zivotu nad jednotkami (misto nameplates WoW)
+//! v [`bars`].
 
 use avian3d::prelude::{Collider, RigidBody};
 use bevy::asset::io::AssetSourceBuilder;
@@ -33,6 +34,7 @@ use crate::blob_shadow::BlobShadowBox;
 use crate::entities::{ModelBound, VisualAttached};
 use crate::net::{Guid, NetEntity};
 
+mod bars;
 mod cards;
 mod grid;
 mod loading;
@@ -139,6 +141,7 @@ pub(crate) fn plugin(app: &mut App) {
     grid::plugin(app);
     cards::plugin(app);
     loading::plugin(app);
+    bars::plugin(app);
     app.add_systems(
         Update,
         (forget_rebuilt, swap_models, hide_original, keep_bound, wow_lit_materials).chain(),
@@ -148,14 +151,21 @@ pub(crate) fn plugin(app: &mut App) {
 
 /// Radek dat Hero Defense ze serveru (`SMSG_DBLOOKUP`: statistiky hrdinu, zebricek) jako Lua
 /// udalost `HD_GLUE_DATA` (arg1 = text) v prave bezicim VM: v menu ji cte vrstva
-/// `core/glue/HeroDefenseGlue`.
+/// `core/glue/HeroDefenseGlue`. Radek `AD` (doba debuffu na nepratelich) si vezmou ukazatele
+/// zivotu ([`bars::AuraTimes`]), do Lua nejde.
 fn on_hd_data(
     In(ev): In<benilla_protocol::SessionEvent>,
     script: Option<NonSendMut<benilla_ui::script::UiScript>>,
+    mut aura_times: ResMut<bars::AuraTimes>,
+    time: Res<Time>,
 ) {
     let benilla_protocol::SessionEvent::HdData(text) = ev else {
         return;
     };
+    if let Some(rest) = text.strip_prefix("AD;") {
+        aura_times.read(rest, time.elapsed_secs_f64());
+        return;
+    }
     if let Some(mut script) = script {
         script.fire_event("HD_GLUE_DATA", vec![benilla_ui::script::ScriptValue::Str(text)]);
     }
