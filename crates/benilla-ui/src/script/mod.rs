@@ -36,6 +36,8 @@ mod worldmap_arrow;
 mod button;
 mod calls;
 mod camera_view;
+// Hero Defense: the spellbook card picker (`HeroDefense_Cards*`), drawn by the app.
+pub mod hero_defense_cards;
 #[cfg(debug_assertions)]
 pub mod census;
 mod channel;
@@ -794,6 +796,7 @@ fn install_in_game(lua: &Lua) -> mlua::Result<()> {
     duel::install(lua)?;
     follow::install(lua)?;
     camera_view::install(lua)?;
+    hero_defense_cards::install(lua)?;
     input_verbs::install(lua)?;
     session::install(lua)?;
     pvp::install(lua)?;
