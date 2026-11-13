@@ -15,27 +15,27 @@ const HD_RANGE_ANYWHERE: u32 = 13;
 
 /// (kouzlo, nazev zakladni veze, rasa, ikona); poradi jako `HD_LINES` v serveru.
 const TOWER_SPELLS: [(u32, &str, &str, &str); 21] = [
-    (13808, "Guard Tower", "Human", "Ability_TownWatch"),
-    (25823, "Spire", "Human", "Spell_Holy_HolyBolt"),
-    (8333, "Cannon Bastion", "Human", "INV_Misc_Bomb_05"),
-    (4071, "Barracks", "Human", "Ability_Warrior_DefensiveStance"),
-    (4072, "Lightning Tower", "Human", "Spell_Nature_LightningBolt"),
-    (19805, "Ice Tower", "Human", "Spell_Frost_FrostNova"),
-    (4100, "Arcane Tower", "Human", "Spell_Arcane_StarFire"),
-    (26462, "Sentinel Tower", "Night Elf", "Ability_EyeOfTheOwl"),
-    (25019, "Moonwell", "Night Elf", "Spell_Nature_MoonGlow"),
-    (26540, "Glaive Thrower", "Night Elf", "Ability_UpgradeMoonGlaive"),
-    (21688, "Starwatch Tower", "Night Elf", "Spell_Nature_StarFall"),
-    (22700, "Treant Tower", "Night Elf", "Spell_Nature_ForceOfNature"),
-    (27661, "Chimaera Tower", "Night Elf", "Ability_Hunter_Pet_WindSerpent"),
-    (15252, "Cenarius Tower", "Night Elf", "Spell_Nature_Regeneration"),
-    (19717, "Watch Tower", "Orc", "INV_Misc_Spyglass_01"),
-    (23105, "Totem", "Orc", "Spell_Nature_StoneClawTotem"),
-    (24340, "Siege Catapult", "Orc", "INV_Ammo_FireTar"),
-    (3720, "Spirit Tower", "Orc", "Spell_Nature_SpiritWolf"),
-    (3823, "Serpent Tower", "Orc", "Spell_Nature_GuardianWard"),
-    (23056, "Ironhoof Tower", "Orc", "Ability_Mount_Kodo_01"),
-    (897, "Wyvern Tower", "Orc", "INV_Spear_02"),
+    (13808, "Puskar", "Human", "INV_Weapon_Rifle_01"),
+    (25823, "Knez", "Human", "Spell_Holy_Renew"),
+    (8333, "Mechano-tank", "Human", "INV_Misc_Bomb_05"),
+    (4071, "Kapitan", "Human", "Ability_Warrior_DefensiveStance"),
+    (4072, "Mag boure", "Human", "Spell_Nature_LightningBolt"),
+    (19805, "Mrazivy mag", "Human", "Spell_Frost_FrostBolt02"),
+    (4100, "Sermir", "Human", "INV_Sword_04"),
+    (26462, "Sentinel", "Night Elf", "Ability_EyeOfTheOwl"),
+    (25019, "Wisp", "Night Elf", "Spell_Nature_HealingTouch"),
+    (26540, "Lovkyne", "Night Elf", "Ability_UpgradeMoonGlaive"),
+    (21688, "Moonkin", "Night Elf", "Spell_Nature_StarFall"),
+    (22700, "Treant", "Night Elf", "Spell_Nature_ForceOfNature"),
+    (27661, "Chimera", "Night Elf", "Ability_Hunter_Pet_WindSerpent"),
+    (15252, "Medvedi druid", "Night Elf", "Ability_Racial_BearForm"),
+    (19717, "Vrhac sekyr", "Orc", "INV_Axe_04"),
+    (23105, "Saman", "Orc", "Spell_Nature_HealingWaveGreater"),
+    (24340, "Golem", "Orc", "INV_Ammo_FireTar"),
+    (3720, "Temny mag", "Orc", "Spell_Shadow_ShadowBolt"),
+    (3823, "Grunt", "Orc", "Ability_Warrior_Cleave"),
+    (23056, "Tauren", "Orc", "Ability_Warrior_Charge"),
+    (897, "Wind Rider", "Orc", "Ability_Mount_Wyvern_01"),
 ];
 
 pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
@@ -47,7 +47,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         spell.rank = Some(race.to_string());
         spell.icon = Some(format!("Interface\\Icons\\{icon}"));
         spell.description = Some(format!(
-            "Postavi vez {name} na pole mrizky areny. Vylepseni a prodej: vez vyber jako cil."
+            "Postavi jednotku {name} na pole mrizky areny. Ve vlne jde naproti nepratelum, po kole se vrati. Vylepseni a prodej: vyber ji jako cil."
         ));
         // Stavba odkudkoli, i z "ocicka" (spectate) daleko od hrdiny: SpellRange 13 "Anywhere".
         // Server ma stejny dosah v hero_defense_towers.sql.
