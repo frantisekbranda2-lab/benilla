@@ -35,7 +35,7 @@ const TOWER_SPELLS: [(u32, &str, &str, &str); 21] = [
     (3720, "Temny mag", "Orc", "Spell_Shadow_ShadowBolt"),
     (3823, "Grunt", "Orc", "Ability_Warrior_Cleave"),
     (23056, "Tauren", "Orc", "Ability_Warrior_Charge"),
-    (897, "Wind Rider", "Orc", "Ability_Mount_Wyvern_01"),
+    (897, "Wind Rider", "Orc", "Ability_Hunter_Pet_Vulture"),
 ];
 
 pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
