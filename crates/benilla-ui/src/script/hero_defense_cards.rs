@@ -9,6 +9,8 @@
 //!   (rarity 0 Common .. 4 Legendary, `text` lines separated by `^`, `>>` drawn as an arrow);
 //! - `HeroDefense_CardsShow()` shows the offer, `HeroDefense_CardsHide()` closes it;
 //! - `HeroDefense_CardPick()` returns the picked card's index (0-based) once, else nil;
+//! - `HeroDefense_CardLater()` returns true once after the player closed the offer with the app's
+//!   "Vybrat pozdeji" button (the book stays, nothing is sent to the server);
 //! - `HeroDefense_SpellIcon(spellId)` returns the spell's icon texture path
 //!   (`Interface\Icons\...`, from `SpellIcon.dbc`), or nil until the app has looked it up: the
 //!   first call queues the id, the app answers it on its next frame ([`HD_SPELL_ICONS`]). The
@@ -40,6 +42,8 @@ pub struct HdCardsBridge {
     pub category: u8,
     pub cards: Vec<HdCard>,
     pub picked: Option<u32>,
+    /// The offer was closed with "Vybrat pozdeji", waiting for the addon.
+    pub later: bool,
     staging: Vec<HdCard>,
     staging_category: u8,
 }
@@ -52,6 +56,7 @@ impl HdCardsBridge {
             category: 0,
             cards: Vec::new(),
             picked: None,
+            later: false,
             staging: Vec::new(),
             staging_category: 0,
         }
@@ -131,6 +136,7 @@ pub(super) fn install(lua: &Lua) -> mlua::Result<()> {
                 b.category = b.staging_category;
                 b.open = !b.cards.is_empty();
                 b.picked = None;
+                b.later = false;
                 b.serial = b.serial.wrapping_add(1);
             }
             Ok(())
@@ -165,6 +171,17 @@ pub(super) fn install(lua: &Lua) -> mlua::Result<()> {
                 s.requests.push(id);
             }
             Ok(None)
+        })?,
+    )?;
+
+    g.set(
+        "HeroDefense_CardLater",
+        lua.create_function(|_, ()| {
+            let later = HD_CARDS
+                .lock()
+                .ok()
+                .is_some_and(|mut b| std::mem::take(&mut b.later));
+            Ok(later)
         })?,
     )?;
 

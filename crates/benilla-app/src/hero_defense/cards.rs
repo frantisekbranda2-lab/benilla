@@ -3,7 +3,9 @@
 //! Karty jsou prevzate z Azeroth Survivors (`OutThisLife/azeroth-survivors-re`,
 //! `crates/benilla-app/src/survivors/cards.rs` a `fill.rs`, MIT OR Apache-2.0): rozdaji se jedna po
 //! druhe, naklani se za mysi, pod mysi se zvednou a pri vyberu vybuchnou. Barva je rarita podle
-//! kvality itemu WoW.
+//! kvality itemu WoW. Bez efektu pozadi (ztmaveni, zare): hra je za kartami videt beze zmeny.
+//! Pod kartami tlacitko "Vybrat pozdeji" ve stejnem stylu (knizka zustane, addon se to dozvi pres
+//! `HeroDefense_CardLater`). Vzhled oken addonu (`core/addon/HeroDefense/Skin.lua`) z nich vychazi.
 //!
 //! Nabidku posila server, addon ji preda pres most `benilla_ui::script::hero_defense_cards`
 //! (`HeroDefense_CardsShow`), tady se vykresli, a vyber se zapise zpet do mostu, odkud si ho addon
@@ -47,7 +49,7 @@ pub(super) fn plugin(app: &mut App) {
         .init_resource::<CardsUi>()
         .add_systems(
             Update,
-            (sync_offer, choose_card, animate_cards, fill_icons).chain(),
+            (sync_offer, choose_card, later_button, animate_cards, fill_icons).chain(),
         )
         .add_systems(Update, answer_icon_requests);
 }
@@ -97,13 +99,9 @@ struct Card {
     rarity: u8,
 }
 
-/// Lesk, ktery pri dopadu jednou prejede pres kartu.
+/// Tlacitko "Vybrat pozdeji" pod kartami.
 #[derive(Component)]
-struct CardShine(usize);
-
-/// Pomalu se tocici zare za kartami.
-#[derive(Component)]
-struct Rays;
+struct LaterButton;
 
 /// Ikona kouzla, doplni se z `SpellIcon.dbc`, jakmile jsou data klienta nactena.
 #[derive(Component)]
@@ -151,19 +149,6 @@ impl FillMaterial {
                 glow: Vec4::ZERO,
                 glow_at: Vec4::ZERO,
                 shape: Vec4::new(radius, 0.0, mid_at, 0.0),
-            },
-        }
-    }
-
-    fn radial(centre: Color, edge: Color) -> Self {
-        Self {
-            fill: FillUniform {
-                a: lin(centre),
-                b: Vec4::ZERO,
-                c: lin(edge),
-                glow: Vec4::ZERO,
-                glow_at: Vec4::ZERO,
-                shape: Vec4::new(0.0, 1.0, 0.5, 0.0),
             },
         }
     }
@@ -265,52 +250,10 @@ fn spawn_root(
                 justify_content: JustifyContent::Center,
                 ..default()
             },
-            // Lehke ztmaveni: hra bezi dal a je videt.
-            MaterialNode(
-                fills.add(
-                    FillMaterial::radial(Color::srgba(0.04, 0.025, 0.0, 0.45), Color::srgba(0.0, 0.0, 0.0, 0.7))
-                        .with_glow(
-                            Color::srgba(1.0, 0.75, 0.25, 0.18),
-                            Vec2::splat(0.5),
-                            Vec2::splat(700.0 / 768.0),
-                        ),
-                ),
-            ),
             GlobalZIndex(420),
             bevy::ui::FocusPolicy::Pass,
         ))
         .with_children(|root| {
-            root.spawn((
-                Rays,
-                Node {
-                    position_type: PositionType::Absolute,
-                    width: Val::Px(1400.0),
-                    height: Val::Px(1400.0),
-                    left: Val::Percent(50.0),
-                    top: Val::Percent(50.0),
-                    margin: UiRect::new(Val::Px(-700.0), Val::Px(0.0), Val::Px(-700.0), Val::Px(0.0)),
-                    ..default()
-                },
-                BackgroundGradient(vec![Gradient::Conic(ConicGradient::new(
-                    UiPosition::CENTER,
-                    (0..24)
-                        .map(|i| {
-                            let a = i as f32 / 24.0 * std::f32::consts::TAU;
-                            let on = i % 2 == 0;
-                            AngularColorStop::new(
-                                if on {
-                                    Color::srgba(1.0, 0.8, 0.3, 0.07)
-                                } else {
-                                    Color::srgba(1.0, 0.8, 0.3, 0.0)
-                                },
-                                a,
-                            )
-                        })
-                        .collect(),
-                ))]),
-                UiTransform::default(),
-                bevy::ui::FocusPolicy::Pass,
-            ));
             let title = TITLES.get(usize::from(category)).copied().unwrap_or("KNIHA KOUZEL");
             root.spawn(centered(f, title, 52.0, GOLD));
             root.spawn(centered(f, "Vyber si kartu", 16.0, Color::srgb(0.85, 0.78, 0.6)));
@@ -325,6 +268,28 @@ fn spawn_root(
                 }
             });
             root.spawn(centered(f, "Klikni na kartu", 14.0, DIM));
+            // Vybrat pozdeji: maly panel jako karta (zlaty ram, tmavy prechod).
+            root.spawn((
+                LaterButton,
+                Button,
+                Interaction::default(),
+                Node {
+                    margin: UiRect::top(Val::Px(14.0)),
+                    padding: UiRect::axes(Val::Px(22.0), Val::Px(7.0)),
+                    border: UiRect::all(Val::Px(2.0)),
+                    border_radius: BorderRadius::all(Val::Px(8.0)),
+                    ..default()
+                },
+                BorderColor::all(LATER_RING),
+                BackgroundGradient::from(LinearGradient::to_bottom(vec![
+                    ColorStop::percent(Color::srgba(0.13, 0.1, 0.055, 0.95), 0.0),
+                    ColorStop::percent(Color::srgba(0.05, 0.04, 0.025, 0.95), 100.0),
+                ])),
+                BoxShadow::new(Color::srgba(0.0, 0.0, 0.0, 0.5), Val::Px(0.0), Val::Px(3.0), Val::Px(0.0), Val::Px(10.0)),
+            ))
+            .with_children(|b| {
+                b.spawn(centered(f, "Vybrat pozdeji", 15.0, GOLD));
+            });
         })
         .id()
 }
@@ -497,25 +462,6 @@ fn spawn_card(
             ])),
         ));
         c.spawn(centered(f, desc, 13.0, Color::srgb(0.92, 0.9, 0.84)));
-        // Lesk pri dopadu.
-        c.spawn((
-            CardShine(i),
-            Node {
-                position_type: PositionType::Absolute,
-                top: Val::Px(-40.0),
-                bottom: Val::Px(-40.0),
-                width: Val::Px(70.0),
-                left: Val::Px(-120.0),
-                ..default()
-            },
-            BackgroundGradient::from(LinearGradient::to_right(vec![
-                ColorStop::percent(Color::srgba(1.0, 1.0, 1.0, 0.0), 0.0),
-                ColorStop::percent(Color::srgba(1.0, 0.97, 0.85, 0.28), 50.0),
-                ColorStop::percent(Color::srgba(1.0, 1.0, 1.0, 0.0), 100.0),
-            ])),
-            UiTransform::from_rotation(Rot2::degrees(18.0)),
-            bevy::ui::FocusPolicy::Pass,
-        ));
     });
 }
 
@@ -523,6 +469,41 @@ fn ease_out_back(t: f32) -> f32 {
     let c1 = 1.70158;
     let c3 = c1 + 1.0;
     1.0 + c3 * (t - 1.0).powi(3) + c1 * (t - 1.0).powi(2)
+}
+
+const LATER_RING: Color = Color::srgba(0.55, 0.45, 0.27, 0.9);
+const LATER_RING_HOVER: Color = Color::srgb(0.85, 0.7, 0.4);
+
+/// "Vybrat pozdeji": okno zavrit, knizka zustane (addon si to vezme z mostu a serveru nic neposle).
+fn later_button(
+    mut commands: Commands,
+    mut ui: ResMut<CardsUi>,
+    mut buttons: Query<(&Interaction, &mut BorderColor), (With<LaterButton>, Changed<Interaction>)>,
+) {
+    if ui.root.is_none() || ui.pending.is_some() {
+        return;
+    }
+    let mut close = false;
+    for (interaction, mut border) in &mut buttons {
+        match interaction {
+            Interaction::Pressed => close = true,
+            Interaction::Hovered => *border = BorderColor::all(LATER_RING_HOVER),
+            Interaction::None => *border = BorderColor::all(LATER_RING),
+        }
+    }
+    if !close {
+        return;
+    }
+    if let Some(root) = ui.root.take() {
+        commands.entity(root).despawn();
+    }
+    if let Ok(mut b) = HD_CARDS.lock() {
+        b.later = true;
+        b.open = false;
+        b.cards.clear();
+        b.serial = b.serial.wrapping_add(1);
+        ui.serial = b.serial;
+    }
 }
 
 /// Klik na kartu: zacne jeji vybuch, vyber se zapise az po nem.
@@ -553,20 +534,13 @@ fn animate_cards(
         &mut BoxShadow,
         &mut Visibility,
     )>,
-    mut shines: Query<(&CardShine, &mut Node)>,
-    mut rays: Query<&mut UiTransform, (With<Rays>, Without<Card>)>,
 ) {
     if ui.root.is_none() {
         return;
     }
     let dt = time.delta_secs().min(0.05);
     let now = time.elapsed_secs();
-    for mut r in &mut rays {
-        r.rotation = Rot2::radians(now * 0.12);
-        r.scale = Vec2::splat(1.0 + 0.03 * (now * 1.7).sin());
-    }
     let chosen = ui.pending.map(|(i, _)| i);
-    let mut shine_at = [None::<f32>; 4];
     for (mut card, interaction, cursor, mut tf, mut shadow, mut vis) in &mut cards {
         let card = &mut *card;
         card.t += dt;
@@ -629,16 +603,6 @@ fn animate_cards(
         if pick_fade >= 1.0 {
             *vis = Visibility::Hidden;
         }
-        if card.index < shine_at.len() {
-            shine_at[card.index] = Some(card.t);
-        }
-    }
-    for (shine, mut node) in &mut shines {
-        let Some(t) = shine_at.get(shine.0).copied().flatten() else {
-            continue;
-        };
-        let u = ((t - DEAL_SECS * 0.6) / 0.5).clamp(0.0, 1.0);
-        node.left = Val::Px(-120.0 + u * (CARD_W + 200.0));
     }
     // Po vybuchu: vyber do mostu pro addon, okno zavrit.
     if let Some((i, t)) = ui.pending.as_mut() {
