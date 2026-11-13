@@ -16,7 +16,7 @@ use bevy::shader::ShaderRef;
 use bevy::ui::RelativeCursorPosition;
 use bevy::ui_render::ui_material::UiMaterial;
 
-use benilla_ui::script::hero_defense_cards::{HdCard, HD_CARDS};
+use benilla_ui::script::hero_defense_cards::{HdCard, HD_CARDS, HD_SPELL_ICONS};
 
 /// Barvy kvality itemu WoW (`ITEM_QUALITY_COLORS`).
 const COMMON: Color = Color::srgb(1.0, 1.0, 1.0);
@@ -48,7 +48,30 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(
             Update,
             (sync_offer, choose_card, animate_cards, fill_icons).chain(),
-        );
+        )
+        .add_systems(Update, answer_icon_requests);
+}
+
+/// Odpovi na dotazy addonu `HeroDefense_SpellIcon`: cesta ikony kouzla ze `SpellIcon.dbc`
+/// (neznama kouzla otaznik). Karty knizek kresli addon v okne ve stylu ostatniho UI.
+fn answer_icon_requests(spells: Option<Res<crate::ui_action::Spells>>) {
+    let Some(spells) = spells.as_deref() else {
+        return;
+    };
+    let Ok(mut s) = HD_SPELL_ICONS.lock() else {
+        return;
+    };
+    if s.requests.is_empty() {
+        return;
+    }
+    for id in std::mem::take(&mut s.requests) {
+        let path = spells
+            .catalog
+            .get(id)
+            .and_then(|d| d.icon.clone())
+            .unwrap_or_else(|| "Interface\\Icons\\INV_Misc_QuestionMark".into());
+        s.icons.insert(id, path);
+    }
 }
 
 /// Stav okna: ktera nabidka z mostu je na obrazovce a probihajici vyber.

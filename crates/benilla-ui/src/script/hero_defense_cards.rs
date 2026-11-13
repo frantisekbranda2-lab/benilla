@@ -8,7 +8,11 @@
 //! - `HeroDefense_CardsAdd(spell, rarity, isNew, rank, maxRank, name, tag, text)` adds a card
 //!   (rarity 0 Common .. 4 Legendary, `text` lines separated by `^`, `>>` drawn as an arrow);
 //! - `HeroDefense_CardsShow()` shows the offer, `HeroDefense_CardsHide()` closes it;
-//! - `HeroDefense_CardPick()` returns the picked card's index (0-based) once, else nil.
+//! - `HeroDefense_CardPick()` returns the picked card's index (0-based) once, else nil;
+//! - `HeroDefense_SpellIcon(spellId)` returns the spell's icon texture path
+//!   (`Interface\Icons\...`, from `SpellIcon.dbc`), or nil until the app has looked it up: the
+//!   first call queues the id, the app answers it on its next frame ([`HD_SPELL_ICONS`]). The
+//!   addon draws its own cards with it (the app's card renderer stays for other callers).
 
 use std::sync::Mutex;
 
@@ -56,6 +60,16 @@ impl HdCardsBridge {
 
 /// Shared between the script host and the app.
 pub static HD_CARDS: Mutex<HdCardsBridge> = Mutex::new(HdCardsBridge::new());
+
+/// Spell icons for `HeroDefense_SpellIcon`: ids the addon asked for and the answers the app wrote.
+#[derive(Debug, Default)]
+pub struct HdSpellIcons {
+    pub requests: Vec<u32>,
+    pub icons: std::collections::HashMap<u32, String>,
+}
+
+pub static HD_SPELL_ICONS: std::sync::LazyLock<Mutex<HdSpellIcons>> =
+    std::sync::LazyLock::new(|| Mutex::new(HdSpellIcons::default()));
 
 fn num(lua: &Lua, v: Value) -> u32 {
     lua.coerce_number(v).ok().flatten().map_or(0, |n| n.max(0.0) as u32)
@@ -134,6 +148,23 @@ pub(super) fn install(lua: &Lua) -> mlua::Result<()> {
                 }
             }
             Ok(())
+        })?,
+    )?;
+
+    g.set(
+        "HeroDefense_SpellIcon",
+        lua.create_function(|lua, spell: Value| {
+            let id = num(lua, spell);
+            let Ok(mut s) = HD_SPELL_ICONS.lock() else {
+                return Ok(None);
+            };
+            if let Some(path) = s.icons.get(&id) {
+                return Ok(Some(path.clone()));
+            }
+            if id != 0 && !s.requests.contains(&id) {
+                s.requests.push(id);
+            }
+            Ok(None)
         })?,
     )?;
 
