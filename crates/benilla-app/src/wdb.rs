@@ -127,6 +127,14 @@ impl SavedCache for NameCache {
         self.creature_store_mut()
     }
     fn install(&mut self, answer: SessionEvent) {
+        // Hero Defense: NPC serveru Hero Defense (90000 az 90999: hrad, jednotky, nepratele)
+        // se z disku nenacitaji. Server jim meni jmena a modely (strom jednotek), zaznam z
+        // minula by zustal stary; takhle se kazde spusteni zeptaji serveru znovu.
+        if let SessionEvent::CreatureName { entry, .. } = &answer {
+            if (90000..=90999).contains(entry) {
+                return;
+            }
+        }
         crate::names::net::file_creature(answer, self);
     }
 }
