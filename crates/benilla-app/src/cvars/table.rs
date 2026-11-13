@@ -894,4 +894,17 @@ pub(crate) const REGISTERED: &[Registered] = &[
     same("readEULA", "0"),
     same("readScanning", "0"),
     same("readContest", "0"),
+    // Hero Defense: "Zapamatuj si heslo" na prihlasovaci obrazovce (core/glue HdLogin.lua), pres
+    // glue funkce HeroDefense_GetCVar/HeroDefense_SetCVar (benilla-ui script/glue_core.rs). Heslo je
+    // v config.toml citelne.
+    ours(
+        "hdSavePassword",
+        "0",
+        "Hero Defense: the login screen's remember-password box; 1.12 has none",
+    ),
+    ours(
+        "hdSavedPassword",
+        "",
+        "Hero Defense: the remembered password, plain text in config.toml; 1.12 has none",
+    ),
 ];

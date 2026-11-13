@@ -277,7 +277,7 @@ fn spawn_root(
                     margin: UiRect::top(Val::Px(14.0)),
                     padding: UiRect::axes(Val::Px(22.0), Val::Px(7.0)),
                     border: UiRect::all(Val::Px(2.0)),
-                    border_radius: BorderRadius::all(Val::Px(8.0)),
+                    border_radius: BorderRadius::ZERO,
                     ..default()
                 },
                 BorderColor::all(LATER_RING),
@@ -338,7 +338,7 @@ fn spawn_card(
             padding: UiRect::new(Val::Px(16.0), Val::Px(16.0), Val::Px(18.0), Val::Px(14.0)),
             row_gap: Val::Px(6.0),
             border: UiRect::all(Val::Px(2.0)),
-            border_radius: BorderRadius::all(Val::Px(10.0)),
+            border_radius: BorderRadius::ZERO,
             ..default()
         },
         BorderColor::all(rc),
@@ -369,7 +369,7 @@ fn spawn_card(
                         Color::srgba(0.05, 0.04, 0.035, 0.97),
                         0.42,
                         Color::srgba(0.02, 0.015, 0.01, 0.98),
-                        8.0 / inner_h,
+                        0.0, // ostre rohy jako okna addonu
                     )
                     .with_glow(
                         rc.with_alpha(0.45),
@@ -397,7 +397,7 @@ fn spawn_card(
                 height: Val::Px(74.0),
                 margin: UiRect::vertical(Val::Px(6.0)),
                 border: UiRect::all(Val::Px(2.0)),
-                border_radius: BorderRadius::all(Val::Px(6.0)),
+                border_radius: BorderRadius::ZERO,
                 ..default()
             },
             BorderColor::all(rc.mix(&GOLD, 0.4)),
@@ -408,7 +408,7 @@ fn spawn_card(
                 Node {
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
-                    border_radius: BorderRadius::all(Val::Px(4.0)),
+                    border_radius: BorderRadius::ZERO,
                     ..default()
                 },
                 ImageNode {

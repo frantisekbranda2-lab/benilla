@@ -15,7 +15,8 @@
 //! - Stin pod jednotkou: velikost podle vlastniho modelu ([`BlobShadowBox`]), ne podle M2.
 //! - Kolize: jednotky ve WoW kolize nemaji, vlastni model dostane pevny valec.
 //!
-//! Znazorneni aren na zemi je v [`grid`], vyber karty z knizky kouzel v [`cards`].
+//! Znazorneni aren na zemi je v [`grid`], vyber karty z knizky kouzel v [`cards`], vlastni
+//! nacitaci obrazovka v [`loading`].
 
 use avian3d::prelude::{Collider, RigidBody};
 use bevy::asset::io::AssetSourceBuilder;
@@ -34,6 +35,7 @@ use crate::net::{Guid, NetEntity};
 
 mod cards;
 mod grid;
+mod loading;
 
 /// Zdroj assetu s modely Hero Defense.
 const HD_SOURCE: &str = "hd";
@@ -136,6 +138,7 @@ pub(crate) fn plugin(app: &mut App) {
     use crate::net::NetHandlerApp;
     grid::plugin(app);
     cards::plugin(app);
+    loading::plugin(app);
     app.add_systems(
         Update,
         (forget_rebuilt, swap_models, hide_original, keep_bound, wow_lit_materials).chain(),

@@ -904,6 +904,41 @@ pub(super) fn install(lua: &Lua) -> mlua::Result<()> {
             lua.create_string(value)
         })?,
     )?;
+    // Hero Defense, ne 1.12: cteni a zapis CVaru "hd*" z menu (glue nema GetCVar/SetCVar), napr.
+    // zapamatovane heslo (core/glue HdLogin.lua). Jen jmena zacinajici "hd", aby menu nemohlo
+    // menit nastaveni klienta; CVar musi byt registrovany (benilla-app cvars table.rs), jinak nil.
+    g.set(
+        "HeroDefense_GetCVar",
+        lua.create_function(|lua, name: Value| {
+            let name = string_arg(lua, name, "Usage: HeroDefense_GetCVar(\"hdName\")")?;
+            if !name.to_ascii_lowercase().starts_with("hd") {
+                return Ok(None);
+            }
+            let model = lua.app_data_ref::<Model>().expect("model app_data");
+            let value = model.cvars.get(&name.to_ascii_lowercase()).map(|slot| slot.value.clone());
+            drop(model);
+            value.map(|v| lua.create_string(v)).transpose()
+        })?,
+    )?;
+    g.set(
+        "HeroDefense_SetCVar",
+        lua.create_function(|lua, (name, value): (Value, Value)| {
+            let name = string_arg(lua, name, "Usage: HeroDefense_SetCVar(\"hdName\", \"value\")")?;
+            let value = string_arg(lua, value, "Usage: HeroDefense_SetCVar(\"hdName\", \"value\")")?;
+            let key = name.to_ascii_lowercase();
+            if !key.starts_with("hd") {
+                return Ok(());
+            }
+            let mut model = lua.app_data_mut::<Model>().expect("model app_data");
+            if !model.cvars.contains_key(&key) {
+                return Ok(());
+            }
+            super::cvars::write_cvar(&mut model, &name, value);
+            drop(model);
+            super::cvars::written(lua)
+        })?,
+    )?;
+
     // A string argument (`0x46cdf8`) or `Usage: SetSavedAccountName("accountName")` (`0x837c28`),
     // then `CVar::Set(s, 1, 0, 0, 1)` on that record (`0x46ce13`-`0x46ce2e`), a write like
     // `SetCVar`'s that the host persists, so the next `GetSavedAccountName` reads it back at once.

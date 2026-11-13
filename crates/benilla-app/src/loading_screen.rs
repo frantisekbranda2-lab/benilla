@@ -317,6 +317,12 @@ impl LoadingScreen {
     /// raise's wait and nothing else, not the art, the tip or the bar. The reference's handlers
     /// (`0x401b00`, `0x401de0`) never touch the screen: the raise `0x406800` has three call sites,
     /// all inside `LoadingScreen.cpp`. `map` is `None` for a same-map teleport ack.
+    /// Hero Defense ([`crate::hero_defense`] `loading.rs`): prubeh 0..1, kdyz obrazovka ukazuje
+    /// obrazek mapy a ukazatel (ne cerny prechod ani mapu trasy prepravy), jinak None.
+    pub(crate) fn hd_overlay(&self) -> Option<f32> {
+        (self.active && !self.blackout && self.route.is_none()).then_some(self.displayed)
+    }
+
     fn snap_landed(&mut self, map: Option<u32>) {
         if let (Some(raised), Some(dest)) = (self.map, map) {
             if raised != dest {
