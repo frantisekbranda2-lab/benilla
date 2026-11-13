@@ -172,8 +172,11 @@ pub(crate) struct UiQuads {
 /// The append lane's z bands, far below the scripted UI's keys (a [`benilla_ui::order::ZKey`]
 /// region sets bit 20 of the key's high word), so the whole lane paints under the player UI.
 pub(crate) mod overlay_z {
+    /// Hero Defense, not in 1.12: the health bars over units (`hero_defense/bars.rs`), under the
+    /// floating numbers.
+    pub(crate) const HD_BARS: u128 = 0;
     /// Floating combat, XP and honor numbers, drawn by the client in the world scene under all UI.
-    pub(crate) const WORLD_TEXT: u128 = 0;
+    pub(crate) const WORLD_TEXT: u128 = 1;
 }
 
 /// Clear the append lane at the top of the [`UiQuadAppend`] window, before every appender.
