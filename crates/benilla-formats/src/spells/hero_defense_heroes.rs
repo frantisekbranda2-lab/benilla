@@ -26,8 +26,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&78) {
         s.name = "Heroic Strike".to_string();
         s.rank = None;
-        s.description = Some("Pristi uder zbrani da navic 15 poskozeni.".to_string());
-        s.aura_description = Some("Pristi uder zbrani da navic 15 poskozeni.".to_string());
+        s.description = Some("Uder zbrani a navic 8 poskozeni.".to_string());
+        s.aura_description = Some("Uder zbrani a navic 8 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -42,15 +42,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 32;
-        s.mana_cost = 10;
-        set_effect(s, 0, 14, 1);
+        s.mana_cost = 3;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 1000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        set_effect(s, 0, 7, 1);
+        s.attributes = 327696;
     }
     // Rend (single)
     if let Some(s) = spells.get_mut(&772) {
         s.name = "Rend".to_string();
         s.rank = None;
-        s.description = Some("Krvaceni: 8 poskozeni kazde 3 s po 15 s.".to_string());
-        s.aura_description = Some("Krvaceni: 8 poskozeni kazde 3 s po 15 s.".to_string());
+        s.description = Some("Krvaceni: 4 poskozeni kazde 3 s po 15 s.".to_string());
+        s.aura_description = Some("Krvaceni: 4 poskozeni kazde 3 s po 15 s.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -65,16 +72,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 33;
-        s.mana_cost = 10;
+        s.mana_cost = 6;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 3000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.duration_index = 8;
-        set_effect(s, 0, 7, 1);
+        set_effect(s, 0, 3, 1);
     }
     // Mortal Strike (single)
     if let Some(s) = spells.get_mut(&12294) {
         s.name = "Mortal Strike".to_string();
         s.rank = None;
-        s.description = Some("Silny uder zbrani za navic 40 poskozeni.".to_string());
-        s.aura_description = Some("Silny uder zbrani za navic 40 poskozeni.".to_string());
+        s.description = Some("Silny uder zbrani za navic 20 poskozeni.".to_string());
+        s.aura_description = Some("Silny uder zbrani za navic 20 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -89,18 +102,21 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 34;
-        s.mana_cost = 20;
+        s.mana_cost = 12;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 6000;
         s.category_recovery_ms = 0;
         s.category = 0;
-        set_effect(s, 1, 39, 1);
+        set_effect(s, 1, 19, 1);
     }
     // Cleave (aoe)
     if let Some(s) = spells.get_mut(&845) {
         s.name = "Cleave".to_string();
         s.rank = None;
-        s.description = Some("Pristi uder zasahne az 3 nepratele pred tebou a da navic 30 poskozeni.".to_string());
-        s.aura_description = Some("Pristi uder zasahne az 3 nepratele pred tebou a da navic 30 poskozeni.".to_string());
+        s.description = Some("Uder zasahne az 3 nepratele pred tebou a da navic 15 poskozeni.".to_string());
+        s.aura_description = Some("Uder zasahne az 3 nepratele pred tebou a da navic 15 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -115,15 +131,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 35;
-        s.mana_cost = 20;
-        set_effect(s, 0, 29, 1);
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 3000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        set_effect(s, 0, 14, 1);
+        s.attributes = 327696;
     }
     // Whirlwind (aoe)
     if let Some(s) = spells.get_mut(&1680) {
         s.name = "Whirlwind".to_string();
         s.rank = None;
-        s.description = Some("Vir: zasahne vsechny nepratele do 8 yd zbrani a navic 40 poskozeni.".to_string());
-        s.aura_description = Some("Vir: zasahne vsechny nepratele do 8 yd zbrani a navic 40 poskozeni.".to_string());
+        s.description = Some("Vir: zasahne vsechny nepratele do 8 yd zbrani a navic 20 poskozeni.".to_string());
+        s.aura_description = Some("Vir: zasahne vsechny nepratele do 8 yd zbrani a navic 20 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -138,19 +161,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 36;
-        s.mana_cost = 35;
+        s.mana_cost = 15;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 8000;
         s.category_recovery_ms = 0;
         s.category = 0;
         set_radius(s, 14);
-        set_effect(s, 0, 39, 1);
+        set_effect(s, 0, 19, 1);
     }
     // Thunder Clap (aoe)
     if let Some(s) = spells.get_mut(&6343) {
         s.name = "Thunder Clap".to_string();
         s.rank = None;
-        s.description = Some("Uder do zeme: 20 poskozeni vsem do 8 yd a zpomali je o 30 % na 4 s.".to_string());
-        s.aura_description = Some("Uder do zeme: 20 poskozeni vsem do 8 yd a zpomali je o 30 % na 4 s.".to_string());
+        s.description = Some("Uder do zeme: 10 poskozeni vsem do 8 yd a zpomali je o 30 % na 4 s.".to_string());
+        s.aura_description = Some("Uder do zeme: 10 poskozeni vsem do 8 yd a zpomali je o 30 % na 4 s.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -165,13 +191,16 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 37;
-        s.mana_cost = 25;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 6000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.duration_index = 35;
         set_radius(s, 14);
-        set_effect(s, 0, 19, 1);
+        set_effect(s, 0, 9, 1);
     }
     // Battle Shout (support)
     if let Some(s) = spells.get_mut(&6673) {
@@ -193,7 +222,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 38;
-        s.mana_cost = 15;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 20000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -220,7 +252,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 39;
-        s.mana_cost = 15;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 15000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -247,7 +282,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 40;
-        s.mana_cost = 10;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 20000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -274,7 +312,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 41;
-        s.mana_cost = 10;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 30000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -301,7 +342,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 42;
-        s.mana_cost = 10;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 45000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -326,7 +370,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 43;
-        s.mana_cost = 10;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 30000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -336,8 +383,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&3044) {
         s.name = "Arcane Shot".to_string();
         s.rank = None;
-        s.description = Some("Rychla strela za 25 poskozeni (arkanni).".to_string());
-        s.aura_description = Some("Rychla strela za 25 poskozeni (arkanni).".to_string());
+        s.description = Some("Rychla strela za 12 poskozeni (arkanni).".to_string());
+        s.aura_description = Some("Rychla strela za 12 poskozeni (arkanni).".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -352,19 +399,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 32;
-        s.mana_cost = 10;
-        s.recovery_ms = 3000;
+        s.mana_cost = 3;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 1000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 35;
-        set_effect(s, 0, 24, 1);
+        set_effect(s, 0, 11, 1);
     }
     // Serpent Sting (single)
     if let Some(s) = spells.get_mut(&1978) {
         s.name = "Serpent Sting".to_string();
         s.rank = None;
-        s.description = Some("Jed: 8 poskozeni kazde 3 s po 15 s.".to_string());
-        s.aura_description = Some("Jed: 8 poskozeni kazde 3 s po 15 s.".to_string());
+        s.description = Some("Jed: 4 poskozeni kazde 3 s po 15 s.".to_string());
+        s.aura_description = Some("Jed: 4 poskozeni kazde 3 s po 15 s.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -379,17 +429,23 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 33;
-        s.mana_cost = 10;
+        s.mana_cost = 6;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 3000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 35;
         s.duration_index = 8;
-        set_effect(s, 0, 7, 1);
+        set_effect(s, 0, 3, 1);
     }
     // Aimed Shot (single)
     if let Some(s) = spells.get_mut(&19434) {
         s.name = "Aimed Shot".to_string();
         s.rank = None;
-        s.description = Some("Mirena strela za 250 poskozeni. Sesilani 3 s.".to_string());
-        s.aura_description = Some("Mirena strela za 250 poskozeni. Sesilani 3 s.".to_string());
+        s.description = Some("Mirena strela za 125 poskozeni.".to_string());
+        s.aura_description = Some("Mirena strela za 125 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -404,20 +460,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 34;
-        s.mana_cost = 35;
-        s.casting_time_index = 14;
-        s.recovery_ms = 6000;
+        s.mana_cost = 15;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 8000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 35;
-        set_effect(s, 0, 249, 1);
+        set_effect(s, 0, 124, 1);
     }
     // Multi-Shot (aoe)
     if let Some(s) = spells.get_mut(&2643) {
         s.name = "Multi-Shot".to_string();
         s.rank = None;
-        s.description = Some("Strela zasahne 3 nepratele a da navic 40 poskozeni.".to_string());
-        s.aura_description = Some("Strela zasahne 3 nepratele a da navic 40 poskozeni.".to_string());
+        s.description = Some("Strela zasahne 3 nepratele a da navic 20 poskozeni.".to_string());
+        s.aura_description = Some("Strela zasahne 3 nepratele a da navic 20 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -432,19 +490,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 35;
-        s.mana_cost = 25;
-        s.recovery_ms = 6000;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 4000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 35;
-        set_effect(s, 0, 39, 1);
+        set_effect(s, 0, 19, 1);
     }
     // Volley (aoe)
     if let Some(s) = spells.get_mut(&1510) {
         s.name = "Volley".to_string();
         s.rank = None;
-        s.description = Some("Dest sipu na zem: 20 poskozeni kazdou sekundu vsem do 8 yd po 6 s (kanal).".to_string());
-        s.aura_description = Some("Dest sipu na zem: 20 poskozeni kazdou sekundu vsem do 8 yd po 6 s (kanal).".to_string());
+        s.description = Some("Dest sipu na zem: 10 poskozeni kazdou sekundu vsem do 8 yd po 4 s. Hrdina muze dal bojovat.".to_string());
+        s.aura_description = Some("Dest sipu na zem: 10 poskozeni kazdou sekundu vsem do 8 yd po 4 s. Hrdina muze dal bojovat.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -459,14 +520,19 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 36;
-        s.mana_cost = 40;
+        s.mana_cost = 20;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 10000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 35;
-        s.duration_index = 32;
+        s.duration_index = 35;
         set_radius(s, 14);
-        set_effect(s, 0, 19, 1);
+        set_effect(s, 0, 9, 1);
+        s.attributes_ex = 268435456;
+        s.channel_interrupt_flags = 0;
     }
     // Frost Trap (aoe)
     if let Some(s) = spells.get_mut(&13809) {
@@ -488,7 +554,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 37;
-        s.mana_cost = 20;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 15000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -513,7 +582,13 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 38;
-        s.mana_cost = 15;
+        s.mana_cost = 6;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 5000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 35;
         s.duration_index = 18;
     }
@@ -537,7 +612,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 39;
-        s.mana_cost = 20;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 30000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -564,7 +642,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 40;
-        s.mana_cost = 25;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 15000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -594,7 +675,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 41;
-        s.mana_cost = 10;
+        s.mana_cost = 5;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 30000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -619,7 +703,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 42;
-        s.mana_cost = 10;
+        s.mana_cost = 6;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 20000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -630,8 +717,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&2974) {
         s.name = "Wing Clip".to_string();
         s.rank = None;
-        s.description = Some("Uder nablizko za 5 poskozeni, zpomali nepritele o 50 % na 5 s.".to_string());
-        s.aura_description = Some("Uder nablizko za 5 poskozeni, zpomali nepritele o 50 % na 5 s.".to_string());
+        s.description = Some("Uder nablizko za 3 poskozeni, zpomali nepritele o 50 % na 5 s.".to_string());
+        s.aura_description = Some("Uder nablizko za 3 poskozeni, zpomali nepritele o 50 % na 5 s.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -646,19 +733,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 43;
-        s.mana_cost = 15;
+        s.mana_cost = 6;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 6000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.duration_index = 28;
-        set_effect(s, 0, 4, 1);
+        set_effect(s, 0, 2, 1);
     }
     // Fireball (single)
     if let Some(s) = spells.get_mut(&133) {
         s.name = "Fireball".to_string();
         s.rank = None;
-        s.description = Some("Ohniva koule za 20 az 28 poskozeni.".to_string());
-        s.aura_description = Some("Ohniva koule za 20 az 28 poskozeni.".to_string());
+        s.description = Some("Ohniva koule za 10 az 14 poskozeni.".to_string());
+        s.aura_description = Some("Ohniva koule za 10 az 14 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -673,17 +763,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 32;
-        s.mana_cost = 12;
-        s.casting_time_index = 16;
+        s.mana_cost = 3;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 1000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 35;
-        set_effect(s, 0, 19, 9);
+        set_effect(s, 0, 9, 5);
     }
     // Frostbolt (single)
     if let Some(s) = spells.get_mut(&116) {
         s.name = "Frostbolt".to_string();
         s.rank = None;
-        s.description = Some("Ledova strela za 16 az 22 poskozeni, zpomali nepritele o 40 % na 4 s.".to_string());
-        s.aura_description = Some("Ledova strela za 16 az 22 poskozeni, zpomali nepritele o 40 % na 4 s.".to_string());
+        s.description = Some("Ledova strela za 8 az 11 poskozeni, zpomali nepritele o 40 % na 4 s.".to_string());
+        s.aura_description = Some("Ledova strela za 8 az 11 poskozeni, zpomali nepritele o 40 % na 4 s.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -698,18 +793,23 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 33;
-        s.mana_cost = 12;
-        s.casting_time_index = 16;
+        s.mana_cost = 3;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 1000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 35;
-        set_effect(s, 1, 15, 7);
+        set_effect(s, 1, 7, 4);
         s.effect_apply_aura[0] = 4;
     }
     // Pyroblast (single)
     if let Some(s) = spells.get_mut(&11366) {
         s.name = "Pyroblast".to_string();
         s.rank = None;
-        s.description = Some("Obri ohniva koule za 140 az 170 poskozeni. Sesilani 3,5 s.".to_string());
-        s.aura_description = Some("Obri ohniva koule za 140 az 170 poskozeni. Sesilani 3,5 s.".to_string());
+        s.description = Some("Obri ohniva koule za 70 az 85 poskozeni.".to_string());
+        s.aura_description = Some("Obri ohniva koule za 70 az 85 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -724,20 +824,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 34;
-        s.mana_cost = 30;
-        s.casting_time_index = 22;
+        s.mana_cost = 15;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 8000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 35;
-        set_effect(s, 0, 139, 31);
+        set_effect(s, 0, 69, 16);
     }
     // Arcane Explosion (aoe)
     if let Some(s) = spells.get_mut(&1449) {
         s.name = "Arcane Explosion".to_string();
         s.rank = None;
-        s.description = Some("Vybuch arkanni sily: 30 az 35 poskozeni vsem do 10 yd.".to_string());
-        s.aura_description = Some("Vybuch arkanni sily: 30 az 35 poskozeni vsem do 10 yd.".to_string());
+        s.description = Some("Vybuch arkanni sily: 15 az 18 poskozeni vsem do 10 yd.".to_string());
+        s.aura_description = Some("Vybuch arkanni sily: 15 az 18 poskozeni vsem do 10 yd.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -752,19 +854,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 35;
-        s.mana_cost = 25;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 3000;
         s.category_recovery_ms = 0;
         s.category = 0;
         set_radius(s, 13);
-        set_effect(s, 0, 29, 6);
+        set_effect(s, 0, 14, 4);
     }
     // Blizzard (aoe)
     if let Some(s) = spells.get_mut(&10) {
         s.name = "Blizzard".to_string();
         s.rank = None;
-        s.description = Some("Ledova boure na zem: 30 poskozeni kazdou sekundu vsem do 8 yd po 8 s (kanal).".to_string());
-        s.aura_description = Some("Ledova boure na zem: 30 poskozeni kazdou sekundu vsem do 8 yd po 8 s (kanal).".to_string());
+        s.description = Some("Ledova boure na zem: 15 poskozeni kazdou sekundu vsem do 8 yd po 6 s. Hrdina muze dal bojovat.".to_string());
+        s.aura_description = Some("Ledova boure na zem: 15 poskozeni kazdou sekundu vsem do 8 yd po 6 s. Hrdina muze dal bojovat.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -779,21 +884,26 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 36;
-        s.mana_cost = 60;
+        s.mana_cost = 25;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 6000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 4;
-        s.duration_index = 31;
+        s.duration_index = 32;
         set_radius(s, 14);
-        set_effect(s, 0, 29, 1);
+        set_effect(s, 0, 14, 1);
+        s.attributes_ex = 268435592;
+        s.channel_interrupt_flags = 0;
     }
     // Flamestrike (aoe)
     if let Some(s) = spells.get_mut(&2120) {
         s.name = "Flamestrike".to_string();
         s.rank = None;
-        s.description = Some("Ohen na zem: 35 az 45 poskozeni vsem do 8 yd a pak 5 za kazde 2 s po 8 s.".to_string());
-        s.aura_description = Some("Ohen na zem: 35 az 45 poskozeni vsem do 8 yd a pak 5 za kazde 2 s po 8 s.".to_string());
+        s.description = Some("Ohen na zem: 18 az 23 poskozeni vsem do 8 yd a pak 3 za kazde 2 s po 8 s.".to_string());
+        s.aura_description = Some("Ohen na zem: 18 az 23 poskozeni vsem do 8 yd a pak 3 za kazde 2 s po 8 s.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -808,20 +918,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 37;
-        s.mana_cost = 35;
-        s.casting_time_index = 5;
+        s.mana_cost = 15;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 8000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 4;
         s.duration_index = 31;
         set_radius(s, 14);
-        set_effect(s, 0, 34, 11);
-        set_effect(s, 1, 4, 1);
+        set_effect(s, 0, 17, 6);
+        set_effect(s, 1, 2, 1);
     }
-    // Amplify Magic (support)
-    if let Some(s) = spells.get_mut(&1008) {
-        s.name = "Amplify Magic".to_string();
+    // Arcane Brilliance (support)
+    if let Some(s) = spells.get_mut(&23028) {
+        s.name = "Arcane Brilliance".to_string();
         s.rank = None;
         s.description = Some("Tve jednotky do 20 yd davaji o 15 % vic poskozeni po 20 s.".to_string());
         s.aura_description = Some("Tve jednotky do 20 yd davaji o 15 % vic poskozeni po 20 s.".to_string());
@@ -839,14 +951,15 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 38;
-        s.mana_cost = 20;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 20000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.duration_index = 18;
         set_radius(s, 9);
-        s.effect_implicit_target_a[0] = 1;
-        s.effect_implicit_target_a[1] = 1;
     }
     // Dampen Magic (support)
     if let Some(s) = spells.get_mut(&604) {
@@ -868,7 +981,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 39;
-        s.mana_cost = 20;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 20000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -881,8 +997,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&12051) {
         s.name = "Evocation".to_string();
         s.rank = None;
-        s.description = Some("Kanal: obnovi 15 % many kazde 2 s po 8 s.".to_string());
-        s.aura_description = Some("Kanal: obnovi 15 % many kazde 2 s po 8 s.".to_string());
+        s.description = Some("Obnovi 15 % many kazde 2 s po 8 s. Okamzite, hrdina muze dal bojovat.".to_string());
+        s.aura_description = Some("Obnovi 15 % many kazde 2 s po 8 s. Okamzite, hrdina muze dal bojovat.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -898,10 +1014,15 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 40;
         s.mana_cost = 0;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 60000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.duration_index = 31;
+        s.attributes_ex = 0;
+        s.channel_interrupt_flags = 0;
     }
     // Ice Barrier (defense)
     if let Some(s) = spells.get_mut(&11426) {
@@ -923,7 +1044,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 41;
-        s.mana_cost = 25;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 20000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -950,7 +1074,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 42;
-        s.mana_cost = 20;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 10000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -961,8 +1088,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&122) {
         s.name = "Frost Nova".to_string();
         s.rank = None;
-        s.description = Some("Zmrazi nepratele do 10 yd na miste na 4 s a da jim 15 az 20 poskozeni.".to_string());
-        s.aura_description = Some("Zmrazi nepratele do 10 yd na miste na 4 s a da jim 15 az 20 poskozeni.".to_string());
+        s.description = Some("Zmrazi nepratele do 10 yd na miste na 4 s a da jim 8 az 10 poskozeni.".to_string());
+        s.aura_description = Some("Zmrazi nepratele do 10 yd na miste na 4 s a da jim 8 az 10 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -977,20 +1104,23 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 3;
         s.spell_family_flags |= 1u64 << 43;
-        s.mana_cost = 30;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 15000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.duration_index = 35;
         set_radius(s, 13);
-        set_effect(s, 0, 14, 6);
+        set_effect(s, 0, 7, 3);
     }
     // Corruption (single)
     if let Some(s) = spells.get_mut(&172) {
         s.name = "Corruption".to_string();
         s.rank = None;
-        s.description = Some("Okamzite: 8 poskozeni kazde 3 s po 18 s (48).".to_string());
-        s.aura_description = Some("Okamzite: 8 poskozeni kazde 3 s po 18 s (48).".to_string());
+        s.description = Some("Okamzite: 4 poskozeni kazde 3 s po 18 s (24).".to_string());
+        s.aura_description = Some("Okamzite: 4 poskozeni kazde 3 s po 18 s (24).".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -1005,18 +1135,23 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 32;
-        s.mana_cost = 12;
+        s.mana_cost = 5;
         s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 3000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 4;
         s.duration_index = 85;
-        set_effect(s, 0, 7, 1);
+        set_effect(s, 0, 3, 1);
     }
     // Shadow Bolt (single)
     if let Some(s) = spells.get_mut(&686) {
         s.name = "Shadow Bolt".to_string();
         s.rank = None;
-        s.description = Some("Stinova strela za 30 az 38 poskozeni.".to_string());
-        s.aura_description = Some("Stinova strela za 30 az 38 poskozeni.".to_string());
+        s.description = Some("Stinova strela za 15 az 19 poskozeni.".to_string());
+        s.aura_description = Some("Stinova strela za 15 az 19 poskozeni.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -1031,17 +1166,22 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 33;
-        s.mana_cost = 20;
-        s.casting_time_index = 5;
+        s.mana_cost = 3;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 1000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 4;
-        set_effect(s, 0, 29, 9);
+        set_effect(s, 0, 14, 5);
     }
     // Immolate (single)
     if let Some(s) = spells.get_mut(&348) {
         s.name = "Immolate".to_string();
         s.rank = None;
-        s.description = Some("Ohen: 15 az 20 poskozeni a pak 5 kazde 3 s po 15 s.".to_string());
-        s.aura_description = Some("Ohen: 15 az 20 poskozeni a pak 5 kazde 3 s po 15 s.".to_string());
+        s.description = Some("Ohen: 8 az 10 poskozeni a pak 3 kazde 3 s po 15 s.".to_string());
+        s.aura_description = Some("Ohen: 8 az 10 poskozeni a pak 3 kazde 3 s po 15 s.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -1056,19 +1196,24 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 34;
-        s.mana_cost = 20;
-        s.casting_time_index = 16;
+        s.mana_cost = 6;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 3000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 4;
         s.duration_index = 8;
-        set_effect(s, 0, 4, 1);
-        set_effect(s, 1, 14, 6);
+        set_effect(s, 0, 2, 1);
+        set_effect(s, 1, 7, 3);
     }
     // Rain of Fire (aoe)
     if let Some(s) = spells.get_mut(&5740) {
         s.name = "Rain of Fire".to_string();
         s.rank = None;
-        s.description = Some("Ohnivy dest na zem: 25 poskozeni kazde 2 s vsem do 8 yd po 8 s (kanal).".to_string());
-        s.aura_description = Some("Ohnivy dest na zem: 25 poskozeni kazde 2 s vsem do 8 yd po 8 s (kanal).".to_string());
+        s.description = Some("Ohnivy dest na zem: 13 poskozeni kazde 2 s vsem do 8 yd po 6 s. Hrdina muze dal bojovat.".to_string());
+        s.aura_description = Some("Ohnivy dest na zem: 13 poskozeni kazde 2 s vsem do 8 yd po 6 s. Hrdina muze dal bojovat.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -1083,21 +1228,26 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 35;
-        s.mana_cost = 50;
+        s.mana_cost = 20;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 6000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 4;
-        s.duration_index = 31;
+        s.duration_index = 32;
         set_radius(s, 14);
-        set_effect(s, 0, 24, 1);
+        set_effect(s, 0, 12, 1);
+        s.attributes_ex = 268435592;
+        s.channel_interrupt_flags = 0;
     }
     // Epidemic (aoe)
     if let Some(s) = spells.get_mut(&6789) {
         s.name = "Epidemic".to_string();
         s.rank = None;
-        s.description = Some("30 az 40 poskozeni a tve DoTy a kletby z cile preskoci na az 6 nepratel do 10 yd.".to_string());
-        s.aura_description = Some("30 az 40 poskozeni a tve DoTy a kletby z cile preskoci na az 6 nepratel do 10 yd.".to_string());
+        s.description = Some("15 az 20 poskozeni a tve DoTy a kletby z cile preskoci na az 6 nepratel do 10 yd.".to_string());
+        s.aura_description = Some("15 az 20 poskozeni a tve DoTy a kletby z cile preskoci na az 6 nepratel do 10 yd.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -1112,12 +1262,15 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 36;
-        s.mana_cost = 40;
+        s.mana_cost = 15;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 10000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 4;
-        set_effect(s, 0, 29, 11);
+        set_effect(s, 0, 14, 6);
         s.effects[0] = 2;
         s.effect_apply_aura[0] = 0;
         s.effects[1] = 0;
@@ -1147,7 +1300,13 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 37;
-        s.mana_cost = 15;
+        s.mana_cost = 6;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 5000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 4;
         s.duration_index = 18;
     }
@@ -1171,7 +1330,13 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 38;
-        s.mana_cost = 15;
+        s.mana_cost = 6;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 5000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 4;
         s.duration_index = 18;
         s.effect_apply_aura[0] = 4;
@@ -1197,7 +1362,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 39;
-        s.mana_cost = 20;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 20000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -1224,7 +1392,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 40;
-        s.mana_cost = 15;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 30000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -1252,7 +1423,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 41;
-        s.mana_cost = 20;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
         s.recovery_ms = 20000;
         s.category_recovery_ms = 0;
         s.category = 0;
@@ -1263,8 +1437,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&689) {
         s.name = "Drain Life".to_string();
         s.rank = None;
-        s.description = Some("Kanal: vysava 10 zivota kazdou sekundu po 5 s a leci te o ne.".to_string());
-        s.aura_description = Some("Kanal: vysava 10 zivota kazdou sekundu po 5 s a leci te o ne.".to_string());
+        s.description = Some("Vysava 5 zivota kazdou sekundu po 5 s a leci te o ne. Hrdina muze dal bojovat.".to_string());
+        s.aura_description = Some("Vysava 5 zivota kazdou sekundu po 5 s a leci te o ne. Hrdina muze dal bojovat.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -1279,10 +1453,18 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 5;
         s.spell_family_flags |= 1u64 << 42;
-        s.mana_cost = 15;
+        s.mana_cost = 6;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 5000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
         s.range_index = 4;
         s.duration_index = 28;
-        set_effect(s, 0, 9, 1);
+        set_effect(s, 0, 4, 1);
+        s.attributes_ex = 16384;
+        s.channel_interrupt_flags = 0;
     }
     if let Some(s) = spells.get_mut(&13810) {
         s.effect_apply_aura[0] = 4;
