@@ -1114,6 +1114,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.duration_index = 35;
         set_radius(s, 13);
         set_effect(s, 0, 7, 3);
+        s.aura_interrupt_flags = 0;
     }
     // Corruption (single)
     if let Some(s) = spells.get_mut(&172) {
@@ -1467,6 +1468,9 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.channel_interrupt_flags = 0;
     }
     if let Some(s) = spells.get_mut(&13810) {
+        s.effect_apply_aura[0] = 4;
+    }
+    if let Some(s) = spells.get_mut(&23605) {
         s.effect_apply_aura[0] = 4;
     }
 }
