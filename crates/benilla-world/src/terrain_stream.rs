@@ -64,6 +64,38 @@ pub use residency::TerrainResidency;
 /// uncapped, a cold start spawns the whole ring at once and blocks the main thread for seconds.
 const SPAWN_BUDGET: Duration = Duration::from_millis(4);
 
+/// A world limited to one area (Hero Defense: the game runs on one zone and its server has map
+/// data for that zone only). With the resource present, only the tiles of `map` that touch the
+/// WoW-space rectangle stream (terrain, buildings, doodads, water, clutter); other maps stream
+/// nothing. Absent (the default), streaming is unchanged.
+#[derive(Resource, Clone, Copy, Debug, PartialEq)]
+pub struct TerrainRegion {
+    pub map: u32,
+    pub min_x: f32,
+    pub max_x: f32,
+    pub min_y: f32,
+    pub max_y: f32,
+}
+
+impl TerrainRegion {
+    /// The inclusive tile range `((x0, y0), (x1, y1))` on the streamer's tile axes.
+    pub fn tile_range(&self) -> ((i32, i32), (i32, i32)) {
+        let a = benilla_formats::world_to_chunk(self.min_x, self.min_y);
+        let b = benilla_formats::world_to_chunk(self.max_x, self.max_y);
+        let t = |c: u32| (c / 16) as i32;
+        (
+            (t(a.0).min(t(b.0)), t(a.1).min(t(b.1))),
+            (t(a.0).max(t(b.0)), t(a.1).max(t(b.1))),
+        )
+    }
+
+    /// Whether tile `(tx, ty)` of map `map_id` may stream.
+    pub fn allows(&self, map_id: u32, tx: i32, ty: i32) -> bool {
+        let ((x0, y0), (x1, y1)) = self.tile_range();
+        map_id == self.map && (x0..=x1).contains(&tx) && (y0..=y1).contains(&ty)
+    }
+}
+
 /// The streamer's residency state: the loaded tiles and the entity each spawned as.
 #[derive(Resource, Default)]
 pub struct TerrainStreamer {
@@ -612,6 +644,7 @@ fn stream_terrain(
         Res<crate::view::ViewDistance>,
     ),
     mut load_progress: Option<ResMut<WorldLoadProgress>>,
+    region: Option<Res<TerrainRegion>>,
     // The stream-batch accumulators the map-change drop must clear.
     batchers: (
         ResMut<HullWelds>,
@@ -740,6 +773,10 @@ fn stream_terrain(
     let mut desired = window.wanted_tiles();
     if let Some(w) = wdt_index {
         desired.retain(|&(tx, ty)| w.has_tile(tx as u32, ty as u32));
+    }
+    // A world limited to one area (`TerrainRegion`): nothing outside it streams.
+    if let Some(r) = region.as_deref() {
+        desired.retain(|&(tx, ty)| r.allows(map_id, tx, ty));
     }
     // The inner window's share of them, held resident while the focus holds it.
     state.inner = if focus.holds_inner() {

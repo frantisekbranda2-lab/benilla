@@ -138,6 +138,15 @@ pub(crate) fn register_source(app: &mut App) {
 
 pub(crate) fn plugin(app: &mut App) {
     use crate::net::NetHandlerApp;
+    // Svet jen v oblasti hry: plan Shimmering Flats s okrajem (core/tools/region/region.json, server
+    // ma data map jen tam). Terén, budovy a stromy mimo ni se nenacitaji, jine mapy vubec.
+    app.insert_resource(benilla_world::terrain_stream::TerrainRegion {
+        map: 1,
+        min_x: -7000.0,
+        max_x: -5200.0,
+        min_y: -4700.0,
+        max_y: -3050.0,
+    });
     grid::plugin(app);
     cards::plugin(app);
     loading::plugin(app);
