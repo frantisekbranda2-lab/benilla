@@ -38,7 +38,8 @@ const PICK_SECS: f32 = 0.28;
 
 const RARITY_NAMES: [&str; 5] = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
 const RARITY_COLORS: [Color; 5] = [COMMON, UNCOMMON, RARE, EPIC, LEGENDARY];
-const TITLES: [&str; 4] = ["KNIHA UTOKU", "KNIHA ZKAZY", "KNIHA PODPORY", "KNIHA OBRANY"];
+/// Nadpis podle kategorie nabidky: 0 az 3 knizky, 4 vyber za level (`HdSpellbook::Update`).
+const TITLES: [&str; 5] = ["KNIHA UTOKU", "KNIHA ZKAZY", "KNIHA PODPORY", "KNIHA OBRANY", "NOVY LEVEL"];
 
 fn rarity_color(r: u8) -> Color {
     RARITY_COLORS[usize::from(r.min(4))]
@@ -190,6 +191,20 @@ fn display(s: &str) -> String {
     s.replace('^', "\n").replace(">>", "\u{00bb}")
 }
 
+/// Radek textu ze serveru, ktery zacina `!`, je vzacne vylepseni (cile navic, `HdSpellbook`
+/// `CardText`): kresli se oranzovo-zlate a vetsi. Vraci radky (text, vzacny).
+fn text_lines(s: &str) -> Vec<(String, bool)> {
+    s.split('^')
+        .map(|line| match line.strip_prefix('!') {
+            Some(rare) => (display(rare), true),
+            None => (display(line), false),
+        })
+        .collect()
+}
+
+/// Barva vzacneho vylepseni na karte.
+const RARE_UPGRADE: Color = Color::srgb(1.0, 0.66, 0.0);
+
 // ---- okno ----------------------------------------------------------------------------------------
 
 /// Nabidka z mostu na obrazovku: pri kazde zmene (nova nabidka, zavreni) se okno postavi znovu.
@@ -311,7 +326,12 @@ fn spawn_card(
             desc.push_str("\n\n");
         }
     }
-    desc.push_str(&display(&card.text));
+    // Text ze serveru po radcich, vzacne vylepseni (`!`) jinou barvou.
+    let mut lines: Vec<(String, bool)> = Vec::new();
+    if !desc.is_empty() {
+        lines.push((desc.trim_end().to_string() + "\n", false));
+    }
+    lines.extend(text_lines(&card.text));
     let tag_color = if card.is_new {
         Color::srgb(0.3, 1.0, 0.3)
     } else {
@@ -461,7 +481,26 @@ fn spawn_card(
                 ColorStop::percent(rc.with_alpha(0.0), 100.0),
             ])),
         ));
-        c.spawn(centered(f, desc, 13.0, Color::srgb(0.92, 0.9, 0.84)));
+        c.spawn(centered(f, "", 13.0, Color::srgb(0.92, 0.9, 0.84)))
+            .with_children(|t| {
+                for (k, (line, rare)) in lines.iter().enumerate() {
+                    let body = if k + 1 < lines.len() { format!("{line}\n") } else { line.clone() };
+                    let (size, color) = if *rare {
+                        (15.0, RARE_UPGRADE)
+                    } else {
+                        (13.0, Color::srgb(0.92, 0.9, 0.84))
+                    };
+                    t.spawn((
+                        TextSpan::new(body),
+                        TextFont {
+                            font: f.clone(),
+                            font_size: size,
+                            ..default()
+                        },
+                        TextColor(color),
+                    ));
+                }
+            });
     });
 }
 

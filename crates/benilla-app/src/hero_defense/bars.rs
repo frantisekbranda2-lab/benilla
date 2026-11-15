@@ -40,8 +40,11 @@ const RANGE: f32 = 120.0;
 /// Ukazatel nad hlavou jednotky (yd nad kotvou jmena).
 const LIFT: f32 = 0.45;
 /// Rozmery na obrazovce vysoke 1080 px (zmensuji se a zvetsuji s vyskou okna).
-const W_1080: f32 = 46.0;
-const H_1080: f32 = 6.0;
+/// Prouzek je tak vysoky, aby se do nej vesel text zivotu ("920/1000").
+const W_1080: f32 = 62.0;
+const H_1080: f32 = 11.0;
+/// Text zivotu: nejmensi vyska pisma (px), pod ni (daleke jednotky) se nekresli.
+const HP_TEXT_MIN: f32 = 7.0;
 /// Daleke jednotky maji ukazatel mensi: od [`SHRINK_FROM`] yd az na [`FAR_SCALE`] v [`RANGE`].
 const SHRINK_FROM: f32 = 25.0;
 const FAR_SCALE: f32 = 0.7;
@@ -236,6 +239,9 @@ struct Bar {
     centre: Vec2,
     scale: f32,
     health: f32,
+    /// Životy a maximum pro text na proužku.
+    hp: u32,
+    max_hp: u32,
     ghost: f32,
     colour: ([f32; 3], [f32; 3]),
     lit: bool,
@@ -378,6 +384,8 @@ fn draw_bars(
             centre: screen,
             scale: px * (1.0 - t * (1.0 - FAR_SCALE)),
             health: frac,
+            hp: health as u32,
+            max_hp: max as u32,
             ghost: g.shown,
             colour: if attackable {
                 ENEMY
@@ -445,6 +453,39 @@ fn draw_bars(
         push(&mut quads, fill, c(hi), Some([c(hi), c(hi), c(lo), c(lo)]));
         let shine = Rect::new(fill.min.x, top, fill.max.x, top + (h * 0.35).max(1.0));
         push(&mut quads, shine, [1.0, 1.0, 1.0, 0.18], None);
+
+        // Zivoty na prouzku: "920/1000", bile s cernym obrysem, uprostred.
+        let text_h = snap(h * 0.95);
+        if text_h >= HP_TEXT_MIN {
+            if let Some(atlas) = icons.atlas.as_deref() {
+                let mut e = atlas.lock();
+                let glyphs = layout_text_quads(
+                    &mut e,
+                    &format!("{}/{}", bar.hp, bar.max_hp),
+                    Rect::new(left - w, top - edge, left + 2.0 * w, top + h + edge),
+                    [1.0, 1.0, 1.0, 1.0],
+                    Justify {
+                        h: JustifyH::Center,
+                        v: JustifyV::Middle,
+                    },
+                    overlay_z::HD_BARS,
+                    FontSpec {
+                        path: Some(STACK_FONT),
+                        height: Some(text_h),
+                        outline: Outline::Normal,
+                        monochrome: false,
+                        spacing: 0.0,
+                        shadow_x: 0.0,
+                        alpha_gradient: None,
+                        non_space_wrap: false,
+                        max_lines: 0,
+                    },
+                    TextSeat::Exact,
+                );
+                drop(e);
+                quads.overlays.extend(glyphs);
+            }
+        }
 
         // Ikony aur v rade uprostred nad ukazatelem, kazda s tmavym okrajem.
         if bar.auras.is_empty() {
