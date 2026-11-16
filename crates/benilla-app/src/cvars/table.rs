@@ -907,4 +907,10 @@ pub(crate) const REGISTERED: &[Registered] = &[
         "",
         "Hero Defense: the remembered password, plain text in config.toml; 1.12 has none",
     ),
+    ours(
+        "hdMenuBackdrop",
+        "0",
+        "Hero Defense: 1 = the select scene's backdrop hidden, the menu's own picture under the \
+         character (glue HdSelect.lua, portrait::glue_booth::hd_bare_select_scene)",
+    ),
 ];

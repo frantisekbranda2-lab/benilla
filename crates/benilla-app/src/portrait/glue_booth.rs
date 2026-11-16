@@ -863,6 +863,46 @@ fn glue_ffx(
     }
 }
 
+/// Hero Defense: hlavni menu (vyber hrdiny) ma vlastni obrazek pozadi pod scenou (addon
+/// HeroDefenseGlue, HdSelect.lua). S CVarem `hdMenuBackdrop` 1 se na obrazovce vyberu postavy
+/// schova cela scena (model a jeji castice, deti [`CreateScene::root`]); zustane hrdina (a mazlicek,
+/// ti stoji jinde) na pruhlednem pozadi, ktere booth uz ma, a obrazek je pod nim. Svetlo sceny
+/// a sedadlo hrdiny zustavaji. Login a tvorba postavy beze zmeny.
+pub(super) fn hd_bare_select_scene(
+    preview: Res<GluePreview>,
+    scene: Res<CreateScene>,
+    cvars: Option<Res<crate::cvars::Cvars>>,
+    kids: Query<&Children>,
+    mut vis: Query<&mut Visibility>,
+    // Schovane deti a jejich puvodni viditelnost (vraci se, kdyz scena zase ma byt videt).
+    mut hidden: Local<std::collections::HashMap<Entity, Visibility>>,
+) {
+    let on = cvars
+        .as_deref()
+        .and_then(|c| c.get("hdMenuBackdrop"))
+        .is_some_and(|v| v == "1");
+    let bare = on && matches!(preview.look, Some(GlueLook::Select(_)));
+    if bare {
+        let Ok(children) = kids.get(scene.root) else {
+            return;
+        };
+        for &child in children {
+            if let Ok(mut v) = vis.get_mut(child) {
+                if *v != Visibility::Hidden {
+                    hidden.insert(child, *v);
+                    *v = Visibility::Hidden;
+                }
+            }
+        }
+    } else {
+        for (child, was) in hidden.drain() {
+            if let Ok(mut v) = vis.get_mut(child) {
+                *v = was;
+            }
+        }
+    }
+}
+
 /// Drive the background scene ([`CreateScene`]): load and spawn the pane's file, size the target
 /// to the window, seat the character, and hold the booth camera on the pane's camera of the
 /// scene's table, or with none on the orthographic leg.

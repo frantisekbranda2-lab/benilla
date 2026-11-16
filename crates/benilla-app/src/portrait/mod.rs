@@ -806,6 +806,8 @@ impl Plugin for PortraitPlugin {
                     // The scene before the character standing in it: they commit as one pair
                     // (`glue_booth::PendingSwap`), and the booth reads the stage off the scene.
                     glue_booth::sync_glue_scene,
+                    // Hero Defense: select scene's backdrop hidden under the menu's own picture.
+                    glue_booth::hd_bare_select_scene,
                     glue_booth::sync_glue_booth,
                     // The glue screens' FFX state, off the same look every screen already writes.
                     glue_booth::sync_glue_ffx,
