@@ -52,6 +52,10 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         // Stavba odkudkoli, i z "ocicka" (spectate) daleko od hrdiny: SpellRange 13 "Anywhere".
         // Server ma stejny dosah v hero_defense_towers.sql.
         spell.range_index = HD_RANGE_ANYWHERE;
+        // Bez SPELL_ATTR_COOLDOWN_ON_EVENT (0x0200_0000, nosice Field Repair Bot a Goblin Land
+        // Mine): jinak je kouzlo nedostupne, dokud stoji prvni postavena vez. Server stejne
+        // v hero_defense_towers.sql.
+        spell.attributes &= !0x0200_0000;
     }
 
     // Svitek zkusenosti (item 90200 z truhly po vlne): kouzlo-nosic 5202 (MHTest01), server
@@ -80,6 +84,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
             spell.icon = Some(format!("Interface\\Icons\\{icon}"));
             spell.description = Some(text.to_string());
             spell.aura_description = Some(text.to_string());
+            // Ne SPELL_ATTR_PASSIVE (0x40; nosice 2189 a 2194): pasivni aura nema ikonu.
+            spell.attributes &= !0x40;
         }
     }
 
@@ -92,7 +98,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
 const HD_SPELL_SPEEDS: [(u32, f32); 2] = [(24020, 20.0), (9483, 15.0)];
 
 /// Vizualni aury vezi: (kouzlo, jmeno, ikona, text). Cisla jako `HdVisual` v serveru (`hd_defs.h`).
-const HD_VISUAL_AURAS: [(u32, &str, &str, &str); 11] = [
+const HD_VISUAL_AURAS: [(u32, &str, &str, &str); 13] = [
     (12881, "Jed", "Spell_Nature_CorrosiveBreath", "Jed: poskozeni prirodou v case."),
     (28330, "Horeni", "Spell_Fire_Immolation", "Hori: poskozeni ohnem v case."),
     (23072, "Temna rana", "Spell_Shadow_ShadowWordPain", "Stinove poskozeni v case nebo vyssi prijate poskozeni."),
@@ -104,6 +110,8 @@ const HD_VISUAL_AURAS: [(u32, &str, &str, &str); 11] = [
     (18970, "Omraceni", "Spell_Frost_Stun", "Omraceny."),
     (22751, "Bloodlust", "Spell_Nature_BloodLust", "Rychlejsi utok."),
     (22108, "Arkanove pretizeni", "Spell_Nature_WispSplode", "Kazdy stack: +10 % poskozeni a dosahu Arcane Explosion."),
+    (2189, "Posileni od hrdiny", "Ability_TrueShot", "Hrdina posiluje: jednotka dava vic poskozeni."),
+    (2194, "Ochrana od hrdiny", "Spell_Holy_DevotionAura", "Hrdina chrani: jednotka dostava mene poskozeni."),
 ];
 
 /// Kouzlo svitku zkusenosti, musi sedet s hero_defense_loot.sql.

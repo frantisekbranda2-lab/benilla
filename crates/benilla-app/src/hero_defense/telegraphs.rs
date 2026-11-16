@@ -10,6 +10,8 @@
 //!   vlna, otres kamery) na konci plneni.
 //! - `TGX;id`: zrusit obrazec (0 = vsechny).
 //! - `TM;guid;ms`: velka cervena sipka nad jednotkou (guid hexadecimalne), 0 = pryc.
+//! - `HFX;G;x;y;z;ms;polomer`: rotujici gleva jednotky Rotujici gleva (`hd_tower.cpp` `AddZone`):
+//!   velka tocici se gleva naplocho na zemi po dobu plochy.
 //!
 //! Obrazce se promitaji na teren a budovy stejne jako zamerovac plosnych kouzel
 //! ([`crate::target`] `reticle`, [`benilla_world::decal`]): obrys je vyrazny, vnitrek pruhledny,
@@ -69,6 +71,19 @@ const SLAM_NATIVE_RADIUS: f32 = 8.0;
 const SLAM_SHAKES: [u32; 2] = [2, 12];
 const SLAM_DUST_RING: usize = 12;
 
+/// Rotujici gleva (`HFX;G`): ostri vrhace glevy nocnich elfu lezi v modelu naplocho, stred
+/// (WoW souradnice modelu) a polomer z ohranicujiciho kvadru vrcholu; zvetsi se na polomer plochy.
+const GLAIVE_MODEL: &str =
+    "World\\Generic\\NIGHTELF\\PASSIVE DOODADS\\GlaiveThrower\\NightElfGlaiveThrowerBlade_Doodad01.m2";
+const GLAIVE_CENTER: [f32; 3] = [1.02, 0.16, 0.0];
+const GLAIVE_NATIVE_RADIUS: f32 = 3.6;
+/// Otaceni (radianu za sekundu) a zdvih nad zem (yd).
+const GLAIVE_SPIN: f32 = 9.0;
+const GLAIVE_LIFT: f32 = 0.6;
+/// Vir pod glevou (Whirlwind) a jeho polomer od sebe (yd).
+const GLAIVE_WHIRL: &str = "Spells\\Whirlwind_State_Base.mdx";
+const GLAIVE_WHIRL_RADIUS: f32 = 3.0;
+
 /// Sipka nad jednotkou: rozmery pri vysce okna 1080 px, odstup nad hlavou, pohupovani.
 const ARROW_W_1080: f32 = 34.0;
 const ARROW_H_1080: f32 = 44.0;
@@ -122,10 +137,22 @@ struct Telegraph {
     fired: bool,
 }
 
+/// Rotujici gleva na zemi (`HFX;G`).
+struct Spinner {
+    at: Vec3,
+    radius: f32,
+    start: f64,
+    end: f64,
+    /// Model glevy a vir pod ni, az se vytvori.
+    blade: Option<Entity>,
+    whirl: Option<Entity>,
+}
+
 /// Obrazce a znacky od serveru.
 #[derive(Resource, Default)]
 pub(crate) struct Telegraphs {
     shapes: HashMap<u32, Telegraph>,
+    spinners: Vec<Spinner>,
     /// Balvany zrusenych obrazcu (boss padl): zmizi v [`telegraph_fx`].
     orphans: Vec<Entity>,
     /// guid -> konec v sekundach `Time::elapsed`.
@@ -150,6 +177,23 @@ impl Telegraphs {
         }
         if let Some(rest) = text.strip_prefix("TG;") {
             self.read_shape(rest, now);
+            return true;
+        }
+        if let Some(rest) = text.strip_prefix("HFX;G;") {
+            let f: Vec<f32> = rest
+                .split(';')
+                .filter_map(|v| v.trim().parse::<f32>().ok())
+                .collect();
+            if let [x, y, z, ms, radius] = f[..] {
+                self.spinners.push(Spinner {
+                    at: wow_to_bevy([x, y, z]),
+                    radius: radius.max(1.0),
+                    start: now,
+                    end: now + f64::from(ms) / 1000.0,
+                    blade: None,
+                    whirl: None,
+                });
+            }
             return true;
         }
         if let Some(rest) = text.strip_prefix("TM;") {
@@ -261,6 +305,14 @@ impl Telegraphs {
             keep
         });
         self.marks.retain(|_, &mut end| end > now);
+        self.spinners.retain_mut(|s| {
+            let keep = s.end > now;
+            if !keep {
+                orphans.extend(s.blade.take());
+                orphans.extend(s.whirl.take());
+            }
+            keep
+        });
     }
 }
 
@@ -614,6 +666,32 @@ fn telegraph_fx(
     for entity in telegraphs.orphans.drain(..) {
         if let Ok(mut e) = commands.get_entity(entity) {
             e.despawn();
+        }
+    }
+    for s in &mut telegraphs.spinners {
+        if s.end <= now {
+            continue;
+        }
+        let scale = s.radius / GLAIVE_NATIVE_RADIUS;
+        // Otaceni kolem stredu ostri (pocatek modelu je mimo stred).
+        let rot = Quat::from_rotation_y((now - s.start) as f32 * GLAIVE_SPIN);
+        let pos = s.at + Vec3::Y * GLAIVE_LIFT - rot * (wow_to_bevy(GLAIVE_CENTER) * scale);
+        match s.blade {
+            Some(entity) => {
+                if let Ok(mut tf) = transforms.get_mut(entity) {
+                    tf.translation = pos;
+                    tf.rotation = rot;
+                }
+            }
+            None => {
+                let tf = Transform::from_translation(pos)
+                    .with_rotation(rot)
+                    .with_scale(Vec3::splat(scale));
+                s.blade = Some(spawn_world_fx(&mut commands, GLAIVE_MODEL, tf, true));
+                let whirl = Transform::from_translation(s.at)
+                    .with_scale(Vec3::splat(s.radius / GLAIVE_WHIRL_RADIUS));
+                s.whirl = Some(spawn_world_fx(&mut commands, GLAIVE_WHIRL, whirl, true));
+            }
         }
     }
     for t in telegraphs.shapes.values_mut() {

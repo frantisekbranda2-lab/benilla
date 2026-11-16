@@ -163,8 +163,8 @@ pub(crate) fn plugin(app: &mut App) {
 /// Radek dat Hero Defense ze serveru (`SMSG_DBLOOKUP`: statistiky hrdinu, zebricek) jako Lua
 /// udalost `HD_GLUE_DATA` (arg1 = text) v prave bezicim VM: v menu ji cte vrstva
 /// `core/glue/HeroDefenseGlue`. Radek `AD` (doba debuffu na nepratelich) si vezmou ukazatele
-/// zivotu ([`bars::AuraTimes`]), radky `TG`, `TGX` a `TM` (varovani na zemi, sipka nad jednotkou)
-/// [`telegraphs::Telegraphs`]; do Lua nejdou.
+/// zivotu ([`bars::AuraTimes`]), radky `TG`, `TGX`, `TM` a `HFX` (varovani na zemi, sipka nad
+/// jednotkou, rotujici gleva) [`telegraphs::Telegraphs`]; do Lua nejdou.
 fn on_hd_data(
     In(ev): In<benilla_protocol::SessionEvent>,
     script: Option<NonSendMut<benilla_ui::script::UiScript>>,
