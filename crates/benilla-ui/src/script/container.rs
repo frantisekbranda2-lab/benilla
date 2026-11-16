@@ -219,6 +219,9 @@ pub struct EnchantView {
     /// Ms left on a temporary enchant, from `SMSG_ITEM_ENCHANT_TIME_UPDATE`, never the item's own
     /// duration field; `Some` prints the countdown form.
     pub remaining_ms: Option<u64>,
+    /// `abs(id)`, the `SpellItemEnchantment` row (0 where the source has none): Hero Defense paints
+    /// its item modifiers green in any slot ([`crate::script::tooltip_item`]).
+    pub id: u32,
 }
 
 /// One `ItemRandomProperties` row, an item's random-suffix roll. The app pushes the whole table at

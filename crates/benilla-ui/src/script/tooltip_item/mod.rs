@@ -110,6 +110,7 @@ fn block_enchant(lua: &Lua, slot: u8, id: i32) -> Option<crate::script::EnchantV
         slot,
         negative: id < 0,
         name,
+        id: id.unsigned_abs(),
         ..Default::default()
     })
 }

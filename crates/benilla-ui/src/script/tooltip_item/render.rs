@@ -635,6 +635,10 @@ pub(super) fn render_view_flagged(
             let color = match (e.slot < 2, e.negative) {
                 (true, false) => GREEN,
                 (true, true) => ENCHANT_RED,
+                // Hero Defense: item modifiers (slots 3..5, ids 40000 and up, hd_items.cpp) are
+                // bonuses, green like an enchant; the item tier line (39000s) is blue `#0070DD`.
+                (false, _) if e.id >= HD_AFFIX_ENCHANT_FIRST => GREEN,
+                (false, _) if e.id >= HD_TIER_ENCHANT_FIRST => HD_TIER_BLUE,
                 (false, _) => WHITE,
             };
             // A temporary enchant's countdown replaces its name, in the same line and colour

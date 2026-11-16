@@ -23,6 +23,13 @@ pub(super) const RED: [f32; 4] = [1.0, 32.0 / 255.0, 32.0 / 255.0, 1.0];
 /// The pure red `0xc0d398` (ffff0000), used by two enchant lines (`0x52ca29`, `0x52cc13`): a
 /// negative enchant id in slot 0 or 1, and ITEM_ENCHANT_DISCLAIMER.
 pub(super) const ENCHANT_RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
+/// Hero Defense: the first item-modifier enchant id (`40000 + type * 1000 + value`, the server's
+/// `hd_items.cpp`); vanilla's `SpellItemEnchantment` rows end far below it.
+pub(super) const HD_AFFIX_ENCHANT_FIRST: u32 = 40000;
+/// Hero Defense: the item tier line's enchant ids (`39000 + tier`), painted [`HD_TIER_BLUE`].
+pub(super) const HD_TIER_ENCHANT_FIRST: u32 = 39000;
+/// Hero Defense: the tier line's colour, `#0070DD`.
+pub(super) const HD_TIER_BLUE: [f32; 4] = [0.0, 112.0 / 255.0, 221.0 / 255.0, 1.0];
 pub(super) const GOLD: [f32; 4] = [1.0, 210.0 / 255.0, 0.0, 1.0];
 pub(super) const GRAY: [f32; 4] = [128.0 / 255.0, 128.0 / 255.0, 128.0 / 255.0, 1.0];
 /// The skill-difficulty ramp's rungs `0x529fa0` hands out, written by their initializers: gray

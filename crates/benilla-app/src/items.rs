@@ -301,6 +301,7 @@ fn enchant_lines_quiet(
                 negative: id < 0,
                 charges,
                 remaining_ms,
+                id: id.unsigned_abs(),
             })
         })
         .collect();
