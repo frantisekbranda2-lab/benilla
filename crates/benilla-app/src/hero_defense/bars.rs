@@ -18,6 +18,10 @@
 //!
 //! Spojenecke jednotky (vlastni jednotky, prodejci) maji ukazatel jen zranene, v cili, pod mysi
 //! nebo s buffem, at plne zive jednotky mezi vlnami nezaplni obrazovku.
+//!
+//! Nepritel ma vlevo od ukazatele ikonu role ([`EnemyRoles`], radek `ER` ze serveru): mec bezny
+//! utocnik, stit obrance (stitonos, odolna vlna), plus lecitel, dyka assassin (jde po hrdinovi),
+//! lebka boss.
 
 use std::collections::HashMap;
 
@@ -79,9 +83,75 @@ const STACK_FONT: &str = "Fonts\\ARIALN.TTF";
 /// Ztmaveni ubehle casti ikony debuffu (hodiny).
 const SWEEP: [f32; 4] = [0.0, 0.0, 0.0, 0.7];
 
+/// Ikona role nepritele vlevo od ukazatele: velikost vuci vysce prouzku, mezera, a jak dlouho
+/// role plati bez obnoveni (server ji posila kazde 4 s znovu, `HD_ROLE_RESEND_MS`).
+const ROLE_SIZE: f32 = 1.9;
+const ROLE_GAP_1080: f32 = 3.0;
+const ROLE_TTL: f64 = 12.0;
+/// Role (`HdEnemyRole` v serveru): ikona a barva okraje. Lebka bosse je obrazek bez ramecku.
+const ROLE_ICONS: [(char, &str, [f32; 4]); 5] = [
+    (
+        'S',
+        "Interface\\Icons\\INV_Sword_04",
+        [0.75, 0.75, 0.78, 1.0],
+    ),
+    (
+        'D',
+        "Interface\\Icons\\INV_Shield_06",
+        [0.35, 0.6, 1.0, 1.0],
+    ),
+    (
+        'H',
+        "Interface\\Icons\\Spell_ChargePositive",
+        [0.3, 1.0, 0.35, 1.0],
+    ),
+    (
+        'A',
+        "Interface\\Icons\\Ability_BackStab",
+        [1.0, 0.15, 0.1, 1.0],
+    ),
+    (
+        'B',
+        "Interface\\TargetingFrame\\UI-TargetingFrame-Skull",
+        [0.0, 0.0, 0.0, 0.0],
+    ),
+];
+
 pub(super) fn plugin(app: &mut App) {
     app.init_resource::<AuraTimes>()
+        .init_resource::<EnemyRoles>()
         .add_systems(Update, draw_bars.in_set(UiQuadAppend));
+}
+
+/// Role nepratel ze serveru: radek `ER;guid,role;guid,role` v `SMSG_DBLOOKUP` (`core`
+/// `HdGame::QueueRole`, guid hexadecimalne). Posila se pri vyvolani a kazde 4 s znovu.
+#[derive(Resource, Default)]
+pub(crate) struct EnemyRoles {
+    /// guid -> (role, cas posledni zpravy v sekundach `Time::elapsed`).
+    roles: HashMap<u64, (char, f64)>,
+}
+
+impl EnemyRoles {
+    pub(crate) fn read(&mut self, rest: &str, now: f64) {
+        for entry in rest.split(';') {
+            let Some((guid, role)) = entry.split_once(',') else {
+                continue;
+            };
+            let (Ok(guid), Some(role)) = (u64::from_str_radix(guid, 16), role.chars().next())
+            else {
+                continue;
+            };
+            self.roles.insert(guid, (role, now));
+        }
+    }
+
+    fn get(&self, guid: u64) -> Option<char> {
+        self.roles.get(&guid).map(|&(role, _)| role)
+    }
+
+    fn prune(&mut self, now: f64) {
+        self.roles.retain(|_, &mut (_, at)| at + ROLE_TTL > now);
+    }
 }
 
 /// Doba debuffu na nepratelich ze serveru: radek `AD;guid,slot,kouzlo,zbyva ms,celkem ms;...`
@@ -196,6 +266,7 @@ struct BarWorld<'w, 's> {
     time: Res<'w, Time>,
     spells: Option<Res<'w, crate::ui_action::Spells>>,
     aura_times: ResMut<'w, AuraTimes>,
+    roles: ResMut<'w, EnemyRoles>,
 }
 
 /// Ikony kouzel a pismo pro cisla stacku.
@@ -206,6 +277,8 @@ struct IconWorld<'w, 's> {
     atlas: Option<ResMut<'w, crate::ui_text::UiFontAtlas>>,
     /// Ikona podle kouzla; `None` = kouzlo ikonu nema (nezkousi se znovu).
     cache: Local<'s, HashMap<u32, Option<Handle<Image>>>>,
+    /// Ikony roli podle cesty.
+    paths: Local<'s, HashMap<&'static str, Option<Handle<Image>>>>,
 }
 
 impl IconWorld<'_, '_> {
@@ -221,6 +294,16 @@ impl IconWorld<'_, '_> {
             .filter(|p| !p.is_empty())
             .and_then(|path| assets.sprite_texture(&format!("{path}.blp"), &mut self.images));
         self.cache.insert(spell, h.clone());
+        h
+    }
+
+    fn texture(&mut self, path: &'static str) -> Option<Handle<Image>> {
+        if let Some(h) = self.paths.get(path) {
+            return h.clone();
+        }
+        let assets = self.assets.as_deref_mut()?;
+        let h = assets.sprite_texture(&format!("{path}.blp"), &mut self.images);
+        self.paths.insert(path, h.clone());
         h
     }
 }
@@ -247,6 +330,8 @@ struct Bar {
     lit: bool,
     /// Ikony aur (kouzlo, stacky), nejvic [`MAX_ICONS`].
     auras: Vec<(Handle<Image>, u8, Option<f32>)>,
+    /// Role nepritele (ikona vlevo), [`EnemyRoles`].
+    role: Option<char>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -282,6 +367,7 @@ fn draw_bars(
     let dt = world.time.delta_secs();
     let now = world.time.elapsed_secs_f64();
     world.aura_times.prune(now);
+    world.roles.prune(now);
     let rel = world.relations.get();
     let me = world.relations.me();
 
@@ -398,6 +484,11 @@ fn draw_bars(
             },
             lit,
             auras,
+            role: if attackable {
+                world.roles.get(guid.0)
+            } else {
+                None
+            },
         });
     }
     ghosts.retain(|e, _| seen.contains(e));
@@ -484,6 +575,53 @@ fn draw_bars(
                 );
                 drop(e);
                 quads.overlays.extend(glyphs);
+            }
+        }
+
+        // Role nepritele vlevo od ukazatele: ikona s okrajem v barve role, lebka bosse bez nej.
+        if let Some(&(_, path, border)) = bar
+            .role
+            .and_then(|r| ROLE_ICONS.iter().find(|(c, _, _)| *c == r))
+        {
+            if let Some(texture) = icons.texture(path) {
+                let skull = border[3] == 0.0;
+                let size = snap((h * ROLE_SIZE * if skull { 1.25 } else { 1.0 }).max(10.0));
+                let gap = snap((ROLE_GAP_1080 * bar.scale).max(1.0));
+                let right = outer.min.x - gap;
+                let mid = (outer.min.y + outer.max.y) * 0.5;
+                let icon = Rect::new(
+                    right - size,
+                    snap(mid - size * 0.5),
+                    right,
+                    snap(mid - size * 0.5) + size,
+                );
+                let (c0, c1) = if skull {
+                    (0.0, 1.0)
+                } else {
+                    push(
+                        &mut quads,
+                        Rect::new(
+                            icon.min.x - edge,
+                            icon.min.y - edge,
+                            icon.max.x + edge,
+                            icon.max.y + edge,
+                        ),
+                        border,
+                        None,
+                    );
+                    (ICON_CROP, 1.0 - ICON_CROP)
+                };
+                quads.overlays.push(UiQuad {
+                    rect: icon,
+                    z_key: overlay_z::HD_BARS,
+                    texture: Some(texture),
+                    uv: crate::ui_pass::UvRect {
+                        corners: [[c0, c0], [c1, c0], [c1, c1], [c0, c1]],
+                    },
+                    color: [1.0, 1.0, 1.0, 1.0],
+                    blend: BlendMode::Blend,
+                    ..default()
+                });
             }
         }
 

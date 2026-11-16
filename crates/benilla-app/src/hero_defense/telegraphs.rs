@@ -6,8 +6,10 @@
 //!   k tx,ty, polomer, uhel ve stupnich). `ms` doba (0 = dokud neprijde `TGX`), `plni` 1 =
 //!   vyplnuje se od stredu nebo zacatku a az je plny, prijde dopad. Barva `O` varovani, `R` zasah.
 //!   Stejne id nahradi obrazec a ponecha mu cas zacatku (pruh charge sleduje hrdinu). Efekt `B`:
-//!   z nebe pada balvan a dopadne presne, kdyz je kruh plny; `S`: uder do zeme (prach, tlakova
-//!   vlna, otres kamery) na konci plneni.
+//!   z nebe pada balvan a dopadne presne, kdyz je kruh plny; `R` totez s bombou (raketova salva);
+//!   `S`: uder do zeme (prach, tlakova vlna, otres kamery) na konci plneni; `F`: plameny v obrazci,
+//!   dokud trva (plamenomet); `D`: ohen po celem obrazci na konci plneni (dech draka); `N`: mina na
+//!   zemi, dokud obrazec trva; `X`: vybuch hned (mina); `P`: ohen na zemi, dokud trva (louze).
 //! - `TGX;id`: zrusit obrazec (0 = vsechny).
 //! - `TM;guid;ms`: velka cervena sipka nad jednotkou (guid hexadecimalne), 0 = pryc.
 //! - `HFX;G;x;y;z;ms;polomer`: rotujici gleva jednotky Rotujici gleva (`hd_tower.cpp` `AddZone`):
@@ -71,6 +73,28 @@ const SLAM_NATIVE_RADIUS: f32 = 8.0;
 const SLAM_SHAKES: [u32; 2] = [2, 12];
 const SLAM_DUST_RING: usize = 12;
 
+/// Raketa (efekt `R`): bomba pada jako balvan, dopad je vybuch bomby a prach.
+const ROCKET_MODEL: &str = "Spells\\Missile_Bomb.mdx";
+const ROCKET_SCALE: f32 = 2.0;
+const BOMB_BLAST: &str = "Spells\\Bomb_ExplosionA.mdx";
+/// Plameny (efekt `F` po dobu obrazce, `D` naraz na konci plneni): male ohnive vybuchy na nahodnych
+/// mistech obrazce; `F` jeden kazdych [`FLAME_EVERY`] s, `D` jeden na [`BURST_AREA`] yd^2 (nejvic
+/// [`BURST_MAX`]).
+const FLAME: &str = "Spells\\FlameStrikeSmall_Impact_Base.mdx";
+const FLAME_EVERY: f32 = 0.07;
+const FLAME_SCALE: f32 = 1.0;
+const BURST: &str = "Spells\\Flamestrike_Impact_Base.mdx";
+const BURST_AREA: f32 = 40.0;
+const BURST_MAX: usize = 40;
+const BURST_SHAKE: u32 = 2;
+/// Mina (efekt `N`): model herniho objektu miny, dokud obrazec trva.
+const MINE_MODEL: &str = "World\\Goober\\LandMineAlteracValley.mdx";
+const MINE_SCALE: f32 = 1.5;
+/// Ohniva louze (efekt `P`): hori uprostred a v kruhu kolem (polomer vuci obrazci), dokud trva.
+const POOL_FIRE: &str = "Spells\\Immolate_State_Base.mdx";
+const POOL_RING: usize = 5;
+const POOL_SCALE: f32 = 1.4;
+
 /// Rotujici gleva (`HFX;G`): ostri vrhace glevy nocnich elfu lezi v modelu naplocho, stred
 /// (WoW souradnice modelu) a polomer z ohranicujiciho kvadru vrcholu; zvetsi se na polomer plochy.
 const GLAIVE_MODEL: &str =
@@ -106,7 +130,13 @@ pub(super) fn plugin(app: &mut App) {
 enum Fx {
     None,
     Boulder,
+    Rocket,
     Slam,
+    Flame,
+    Burst,
+    Mine,
+    Blast,
+    Pool,
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -131,10 +161,14 @@ struct Telegraph {
     fill: bool,
     color: [f32; 3],
     fx: Fx,
-    /// Padajici balvan (efekt `B`), dokud nedopadne.
+    /// Padajici balvan nebo bomba (efekt `B`, `R`), dokud nedopadne; mina (`N`).
     boulder: Option<Entity>,
+    /// Ohen louze (efekt `P`), dokud obrazec trva.
+    extra: Vec<Entity>,
     /// Efekt dopadu uz probehl.
     fired: bool,
+    /// Plamenomet: sekundy do dalsiho plamene.
+    timer: f32,
 }
 
 /// Rotujici gleva na zemi (`HFX;G`).
@@ -222,7 +256,13 @@ impl Telegraphs {
         };
         let fx = match rest.first().map(|s| s.trim()) {
             Some("B") => Fx::Boulder,
+            Some("R") => Fx::Rocket,
             Some("S") => Fx::Slam,
+            Some("F") => Fx::Flame,
+            Some("D") => Fx::Burst,
+            Some("N") => Fx::Mine,
+            Some("X") => Fx::Blast,
+            Some("P") => Fx::Pool,
             _ => Fx::None,
         };
         let num = |s: &str| s.trim().parse::<f32>().ok();
@@ -261,9 +301,12 @@ impl Telegraphs {
         let to = wow_to_bevy([tx, ty, z]);
         let dir = Vec2::new(to.x - at.x, to.z - at.z).normalize_or(Vec2::X);
         // Stejne id: novy tvar, puvodni zacatek (plneni pokracuje) i padajici balvan.
-        let (start, boulder, fired) = self.shapes.get(&id).map_or((now, None, false), |old| {
-            (old.start, old.boulder, old.fired)
-        });
+        let (start, boulder, extra, fired) = self
+            .shapes
+            .remove(&id)
+            .map_or((now, None, Vec::new(), false), |old| {
+                (old.start, old.boulder, old.extra, old.fired)
+            });
         self.shapes.insert(
             id,
             Telegraph {
@@ -279,7 +322,9 @@ impl Telegraphs {
                 color: if color.trim() == "R" { RED } else { ORANGE },
                 fx,
                 boulder,
+                extra,
                 fired,
+                timer: 0.0,
             },
         );
     }
@@ -287,6 +332,7 @@ impl Telegraphs {
     fn remove(&mut self, id: u32) {
         if let Some(t) = self.shapes.remove(&id) {
             self.orphans.extend(t.boulder);
+            self.orphans.extend(t.extra);
         }
     }
 
@@ -301,6 +347,7 @@ impl Telegraphs {
             };
             if !keep {
                 orphans.extend(t.boulder.take());
+                orphans.append(&mut t.extra);
             }
             keep
         });
@@ -694,12 +741,89 @@ fn telegraph_fx(
             }
         }
     }
+    let dt = time.delta_secs();
     for t in telegraphs.shapes.values_mut() {
-        if t.fx == Fx::None || t.fired || t.duration <= 0.0 {
+        if t.fx == Fx::None {
+            continue;
+        }
+        // Efekty po dobu obrazce (i bez doby): mina, ohen louze, plamenomet.
+        match t.fx {
+            Fx::Mine if t.boulder.is_none() => {
+                let tf = Transform::from_translation(t.at).with_scale(Vec3::splat(MINE_SCALE));
+                t.boulder = Some(spawn_world_fx(&mut commands, MINE_MODEL, tf, true));
+                continue;
+            }
+            Fx::Pool if t.extra.is_empty() => {
+                t.extra.push(spawn_world_fx(
+                    &mut commands,
+                    POOL_FIRE,
+                    pool_tf(t.at, t.radius),
+                    true,
+                ));
+                for k in 0..POOL_RING {
+                    let a = k as f32 / POOL_RING as f32 * std::f32::consts::TAU;
+                    let at = t.at + Vec3::new(a.cos(), 0.0, a.sin()) * t.radius * 0.6;
+                    t.extra.push(spawn_world_fx(
+                        &mut commands,
+                        POOL_FIRE,
+                        pool_tf(at, t.radius * 0.6),
+                        true,
+                    ));
+                }
+                continue;
+            }
+            Fx::Flame => {
+                t.timer -= dt;
+                while t.timer <= 0.0 {
+                    t.timer += FLAME_EVERY;
+                    let tf = Transform::from_translation(random_point(t))
+                        .with_scale(Vec3::splat(FLAME_SCALE));
+                    spawn_world_fx(&mut commands, FLAME, tf, false);
+                }
+                continue;
+            }
+            Fx::Blast if !t.fired => {
+                t.fired = true;
+                let size = (t.radius / 3.0).max(0.8);
+                for (path, scale) in [(BOMB_BLAST, size), (ROCK_DUST, size * 1.3)] {
+                    spawn_world_fx(
+                        &mut commands,
+                        path,
+                        Transform::from_translation(t.at).with_scale(Vec3::splat(scale)),
+                        false,
+                    );
+                }
+                shakes.write(PresetShake {
+                    id: ROCK_SHAKE,
+                    pos: t.at,
+                });
+                continue;
+            }
+            Fx::Mine | Fx::Pool | Fx::Blast => continue,
+            _ => {}
+        }
+        if t.fired || t.duration <= 0.0 {
             continue;
         }
         let left = (t.start + f64::from(t.duration) - now) as f32;
-        if t.fx == Fx::Boulder {
+        if t.fx == Fx::Burst {
+            if left <= 0.0 {
+                t.fired = true;
+                let area = shape_area(t);
+                let n = ((area / BURST_AREA) as usize).clamp(4, BURST_MAX);
+                for _ in 0..n {
+                    let tf = Transform::from_translation(random_point(t));
+                    spawn_world_fx(&mut commands, BURST, tf, false);
+                }
+                shakes.write(PresetShake {
+                    id: BURST_SHAKE,
+                    pos: t.at,
+                });
+            }
+            continue;
+        }
+        if matches!(t.fx, Fx::Boulder | Fx::Rocket) {
+            let rocket = t.fx == Fx::Rocket;
             let sky = t.at + Vec3::Y * BOULDER_HEIGHT;
             if left > 0.0 {
                 // Kazdy kruh svuj balvan: stejnym tempem jako plneni kruhu, dopad s naplnenim.
@@ -717,10 +841,15 @@ fn telegraph_fx(
                         }
                     }
                     None => {
+                        let (model, scale) = if rocket {
+                            (ROCKET_MODEL, ROCKET_SCALE)
+                        } else {
+                            (BOULDER_MODEL, BOULDER_SCALE)
+                        };
                         let tf = Transform::from_translation(pos)
                             .with_rotation(spin)
-                            .with_scale(Vec3::splat(BOULDER_SCALE));
-                        t.boulder = Some(spawn_world_fx(&mut commands, BOULDER_MODEL, tf, true));
+                            .with_scale(Vec3::splat(scale));
+                        t.boulder = Some(spawn_world_fx(&mut commands, model, tf, true));
                     }
                 }
             }
@@ -734,7 +863,7 @@ fn telegraph_fx(
                 let size = (t.radius / 5.0).max(0.6);
                 spawn_world_fx(
                     &mut commands,
-                    ROCK_IMPACT,
+                    if rocket { BOMB_BLAST } else { ROCK_IMPACT },
                     Transform::from_translation(t.at).with_scale(Vec3::splat(size)),
                     false,
                 );
@@ -783,4 +912,38 @@ fn telegraph_fx(
             }
         }
     }
+}
+
+/// Ohen louze: model vuci polomeru.
+fn pool_tf(at: Vec3, radius: f32) -> Transform {
+    Transform::from_translation(at).with_scale(Vec3::splat((radius * 0.5).max(1.0) * POOL_SCALE))
+}
+
+/// Plocha obrazce (yd^2): kolik plamenu na konci dechu.
+fn shape_area(t: &Telegraph) -> f32 {
+    match t.shape {
+        Shape::Circle => std::f32::consts::PI * t.radius * t.radius,
+        Shape::Lane => t.radius * t.width,
+        Shape::Cone => t.arc.to_radians() * 0.5 * t.radius * t.radius,
+    }
+}
+
+/// Nahodny bod obrazce (Bevy, na urovni jeho zacatku).
+fn random_point(t: &Telegraph) -> Vec3 {
+    let r = || rand::random::<f32>();
+    let dir = t.dir;
+    let side = Vec2::new(-dir.y, dir.x);
+    let flat = match t.shape {
+        Shape::Circle => {
+            let a = r() * std::f32::consts::TAU;
+            Vec2::new(a.cos(), a.sin()) * t.radius * r().sqrt()
+        }
+        Shape::Lane => dir * (r() * t.radius) + side * ((r() - 0.5) * t.width),
+        Shape::Cone => {
+            let a = (r() - 0.5) * t.arc.to_radians();
+            let d = t.radius * r().sqrt();
+            (dir * a.cos() + side * a.sin()) * d
+        }
+    };
+    t.at + Vec3::new(flat.x, 0.0, flat.y)
 }
