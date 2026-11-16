@@ -85,7 +85,14 @@ const SWEEP: [f32; 4] = [0.0, 0.0, 0.0, 0.7];
 
 /// Ikona role nepritele vlevo od ukazatele: velikost vuci vysce prouzku, mezera, a jak dlouho
 /// role plati bez obnoveni (server ji posila kazde 4 s znovu, `HD_ROLE_RESEND_MS`).
-const ROLE_SIZE: f32 = 1.9;
+const ROLE_SIZE: f32 = 1.4;
+/// Hustá skupina nepřátel: nepřítel s plnými životy (ne v cíli, ne pod myší, bez debuffu) má jen nízký
+/// proužek bez textu (podíl výšky), at shluk nezakryje obrazovku.
+const COMPACT_H: f32 = 0.45;
+/// Ukazatele se nepřekrývají: překrytý se posune nahoru (o svou výšku a mezeru), nejvýš o tolik pater.
+/// Bližší jednotky a cíl zůstávají na místě. Pak se kreslí, i kdyby se překrýval.
+const MAX_STACK: usize = 6;
+const STACK_GAP_1080: f32 = 2.0;
 const ROLE_GAP_1080: f32 = 3.0;
 const ROLE_TTL: f64 = 12.0;
 /// Role (`HdEnemyRole` v serveru): ikona a barva okraje. Lebka bosse je obrazek bez ramecku.
@@ -332,6 +339,85 @@ struct Bar {
     auras: Vec<(Handle<Image>, u8, Option<f32>)>,
     /// Role nepritele (ikona vlevo), [`EnemyRoles`].
     role: Option<char>,
+    /// Nizky proužek bez textu ([`COMPACT_H`]).
+    compact: bool,
+}
+
+/// Sirka a vyska prouzku na obrazovce.
+fn bar_size(bar: &Bar, snap: &impl Fn(f32) -> f32) -> (f32, f32) {
+    let w = snap((W_1080 * bar.scale).max(24.0));
+    let k = if bar.compact { COMPACT_H } else { 1.0 };
+    let h = snap((H_1080 * bar.scale * k).max(3.0));
+    (w, h)
+}
+
+/// Obdelnik, ktery ukazatel zabira (prouzek, ikona role vlevo, rada aur nahore), pro rozestup.
+fn bar_footprint(bar: &Bar, snap: &impl Fn(f32) -> f32) -> Rect {
+    let (w, h) = bar_size(bar, snap);
+    let left = bar.centre.x - w * 0.5;
+    let top = bar.centre.y - h;
+    let role = if bar.role.is_some() {
+        (h * ROLE_SIZE * 1.25).max(10.0) + ROLE_GAP_1080 * bar.scale
+    } else {
+        0.0
+    };
+    let aura = if bar.auras.is_empty() {
+        0.0
+    } else {
+        (ICON_1080 * bar.scale).max(11.0) + 2.0 * ICON_GAP_1080 * bar.scale
+    };
+    // Ikona role je vyssi nez prouzek: presahuje nahoru i dolu.
+    let role_over = if bar.role.is_some() {
+        (((h * ROLE_SIZE * 1.25).max(10.0)) - h).max(0.0) * 0.5
+    } else {
+        0.0
+    };
+    Rect::new(
+        left - role,
+        top - aura.max(role_over),
+        left + w,
+        top + h + role_over,
+    )
+}
+
+/// Rozestup: od nejdulezitejsiho (cil, pak nejblizsi) kazdy ukazatel na prvni volne patro nad svym
+/// mistem. `bars` je serazene od nejvzdalenejsiho (poradi kresleni).
+fn spread_bars(bars: &mut [Bar], snap: &impl Fn(f32) -> f32, px: f32) {
+    let gap = STACK_GAP_1080 * px;
+    let mut order: Vec<usize> = (0..bars.len()).collect();
+    order.sort_by(|&a, &b| {
+        bars[b]
+            .lit
+            .cmp(&bars[a].lit)
+            .then(bars[a].dist.total_cmp(&bars[b].dist))
+    });
+    let mut placed: Vec<Rect> = Vec::with_capacity(bars.len());
+    for i in order {
+        let base = bar_footprint(&bars[i], snap);
+        let step = base.height() + gap;
+        let mut chosen = 0.0;
+        for level in 0..=MAX_STACK {
+            let dy = -step * level as f32;
+            let r = Rect::new(base.min.x, base.min.y + dy, base.max.x, base.max.y + dy);
+            let free = placed.iter().all(|p| {
+                r.min.x >= p.max.x + gap
+                    || r.max.x + gap <= p.min.x
+                    || r.min.y >= p.max.y + gap
+                    || r.max.y + gap <= p.min.y
+            });
+            if free || level == MAX_STACK {
+                chosen = if free { dy } else { 0.0 };
+                break;
+            }
+        }
+        bars[i].centre.y += chosen;
+        placed.push(Rect::new(
+            base.min.x,
+            base.min.y + chosen,
+            base.max.x,
+            base.max.y + chosen,
+        ));
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -465,7 +551,13 @@ fn draw_bars(
         seen.push(entity);
 
         let t = ((dist - SHRINK_FROM) / (RANGE - SHRINK_FROM)).clamp(0.0, 1.0);
+        let role = if attackable {
+            world.roles.get(guid.0)
+        } else {
+            None
+        };
         bars.push(Bar {
+            compact: attackable && frac >= 1.0 && !lit && auras.is_empty() && role != Some('B'),
             dist,
             centre: screen,
             scale: px * (1.0 - t * (1.0 - FAR_SCALE)),
@@ -484,11 +576,7 @@ fn draw_bars(
             },
             lit,
             auras,
-            role: if attackable {
-                world.roles.get(guid.0)
-            } else {
-                None
-            },
+            role,
         });
     }
     ghosts.retain(|e, _| seen.contains(e));
@@ -496,9 +584,10 @@ fn draw_bars(
     // Vzdalene prvni, blizsi se kresli pres ne.
     bars.sort_by(|a, b| b.dist.total_cmp(&a.dist));
     let snap = |v: f32| crate::vplates::device_snap(v, device);
+    // Shluk nepratel: ukazatele od sebe (nahoru), at se neprekryvaji.
+    spread_bars(&mut bars, &snap, px);
     for bar in bars {
-        let w = snap((W_1080 * bar.scale).max(24.0));
-        let h = snap((H_1080 * bar.scale).max(3.0));
+        let (w, h) = bar_size(&bar, &snap);
         let edge = snap(bar.scale.max(1.0 / device));
         let left = snap(bar.centre.x - w * 0.5);
         let top = snap(bar.centre.y - h);
