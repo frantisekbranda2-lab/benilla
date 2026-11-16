@@ -561,6 +561,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.recovery_ms = 15000;
         s.category_recovery_ms = 0;
         s.category = 0;
+        s.attributes = 65536;
     }
     // Hunter's Mark (support)
     if let Some(s) = spells.get_mut(&1130) {

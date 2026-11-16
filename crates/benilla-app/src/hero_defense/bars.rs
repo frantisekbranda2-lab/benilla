@@ -85,7 +85,18 @@ const SWEEP: [f32; 4] = [0.0, 0.0, 0.0, 0.7];
 
 /// Ikona role nepritele vlevo od ukazatele: velikost vuci vysce prouzku, mezera, a jak dlouho
 /// role plati bez obnoveni (server ji posila kazde 4 s znovu, `HD_ROLE_RESEND_MS`).
-const ROLE_SIZE: f32 = 1.4;
+/// Ikona role je polovicni (Adam, test 16. 11.), lebka bosse zustava velka.
+const ROLE_SIZE: f32 = 0.95;
+const ROLE_SKULL_SIZE: f32 = 2.4;
+
+/// Velikost ikony role v px pro vysku prouzku `h` (lebka bosse `B` vetsi).
+fn role_icon_size(h: f32, role: char) -> f32 {
+    if role == 'B' {
+        (h * ROLE_SKULL_SIZE).max(12.0)
+    } else {
+        (h * ROLE_SIZE).max(6.0)
+    }
+}
 /// Hustá skupina nepřátel: nepřítel s plnými životy (ne v cíli, ne pod myší, bez debuffu) má jen nízký
 /// proužek bez textu (podíl výšky), at shluk nezakryje obrazovku.
 const COMPACT_H: f32 = 0.45;
@@ -375,22 +386,18 @@ fn bar_footprint(bar: &Bar, snap: &impl Fn(f32) -> f32) -> Rect {
     let (w, h) = bar_size(bar, snap);
     let left = bar.centre.x - w * 0.5;
     let top = bar.centre.y - h;
-    let role = if bar.role.is_some() {
-        (h * ROLE_SIZE * 1.25).max(10.0) + ROLE_GAP_1080 * bar.scale
-    } else {
-        0.0
-    };
+    let role = bar
+        .role
+        .map_or(0.0, |r| role_icon_size(h, r) + ROLE_GAP_1080 * bar.scale);
     let aura = if bar.auras.is_empty() {
         0.0
     } else {
         (ICON_1080 * bar.scale).max(11.0) + 2.0 * ICON_GAP_1080 * bar.scale
     };
     // Ikona role je vyssi nez prouzek: presahuje nahoru i dolu.
-    let role_over = if bar.role.is_some() {
-        (((h * ROLE_SIZE * 1.25).max(10.0)) - h).max(0.0) * 0.5
-    } else {
-        0.0
-    };
+    let role_over = bar
+        .role
+        .map_or(0.0, |r| (role_icon_size(h, r) - h).max(0.0) * 0.5);
     Rect::new(
         left - role,
         top - aura.max(role_over),
@@ -618,7 +625,9 @@ fn draw_bars(
         // Klikaci plocha: ukazatel s ikonou role vlevo, aspon 8 px vysoka (nizky proužek).
         {
             let pad = ((8.0 * px - outer.height()) * 0.5).max(0.0);
-            let role = if bar.role.is_some() { h * ROLE_SIZE + 3.0 * bar.scale } else { 0.0 };
+            let role = bar
+                .role
+                .map_or(0.0, |r| role_icon_size(h, r) + 3.0 * bar.scale);
             let a = ui.window_point(Vec2::new(outer.min.x - role, outer.min.y - pad));
             let b = ui.window_point(Vec2::new(outer.max.x, outer.max.y + pad));
             hits.0.push((Rect::from_corners(a, b), bar.entity));
@@ -704,7 +713,7 @@ fn draw_bars(
         {
             if let Some(texture) = icons.texture(path) {
                 let skull = border[3] == 0.0;
-                let size = snap((h * ROLE_SIZE * if skull { 1.25 } else { 1.0 }).max(10.0));
+                let size = snap(role_icon_size(h, if skull { 'B' } else { 'S' }));
                 let gap = snap((ROLE_GAP_1080 * bar.scale).max(1.0));
                 let right = outer.min.x - gap;
                 let mid = (outer.min.y + outer.max.y) * 0.5;
