@@ -36,6 +36,8 @@ use crate::net::{Guid, NetEntity};
 
 mod bars;
 mod cards;
+// Klik na ukazatel zivotu = vyber jednotky (target::hover).
+pub(crate) use bars::BarHits;
 mod grid;
 mod loading;
 mod telegraphs;

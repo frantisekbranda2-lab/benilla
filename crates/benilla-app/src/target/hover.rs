@@ -518,6 +518,8 @@ pub(super) fn update_hover(
     occlusion: Res<PickOcclusion>,
     // The unit whose plate holds the hover after this frame's UI walk.
     plate_hover: Res<crate::vplates::PlateHover>,
+    // Hero Defense: ukazatele zivotu nad jednotkami (klikaci jako nameplates).
+    bar_hits: Option<Res<crate::hero_defense::BarHits>>,
     mut hovered: ResMut<Hovered>,
     picker: UnitPicker,
     mut sticky: ResMut<StickyPicks>,
@@ -542,6 +544,14 @@ pub(super) fn update_hover(
     let Some(cursor) = window.single().ok().and_then(Window::cursor_position) else {
         return;
     };
+    // Hero Defense: ukazatel zivotu nad jednotkou stoji za jednotku (najeti, tooltip i klik ji
+    // vyberou). Jako vyber pres model, ne pres nameplate WoW (zadny tam neni).
+    if let Some(entity) = bar_hits.as_deref().and_then(|h| h.at(cursor)) {
+        let mut h = picker.plate(entity, &mut sticky.unit);
+        h.plate = false;
+        *hovered = h;
+        return;
+    }
     let Some(ray) = cursor_ray(&camera, cursor) else {
         return;
     };
@@ -976,6 +986,7 @@ pub(crate) struct PointPick<'w, 's> {
     units: UnitPicker<'w, 's>,
     objects: ObjectPicker<'w, 's>,
     plate_hover: Res<'w, crate::vplates::PlateHover>,
+    bar_hits: Option<Res<'w, crate::hero_defense::BarHits>>,
     classify: super::cursor_mode::CursorInputs<'w, 's>,
     sticky: ResMut<'w, StickyPicks>,
 }
@@ -1005,13 +1016,25 @@ impl PointPick<'_, '_> {
             .or_else(|| window.cursor_position())
             .or(self.objects.probe_aim().1);
         let cam = self.camera.single().ok();
+        // Hero Defense: ukazatel zivotu pod kurzorem je jeho jednotka (i pro kouzlo s vyberem cile).
+        let bar = if plate.is_none() {
+            cursor.and_then(|c| self.bar_hits.as_deref().and_then(|h| h.at(c)))
+        } else {
+            None
+        };
+        let plate = plate.or(bar);
         match (cursor, cam) {
             (Some(cursor), Some(cam)) => {
                 if let Ok(ray) = cam.0.viewport_to_world(cam.1, cursor) {
                     pick.occlusion = self.trace.trace(ray);
                     let sticky = &mut *self.sticky;
                     pick.hovered = match plate {
-                        Some(entity) => self.units.plate(entity, &mut sticky.unit),
+                        Some(entity) => {
+                            let mut h = self.units.plate(entity, &mut sticky.unit);
+                            // Ukazatel Hero Defense neni nameplate WoW: vyber jako pres model.
+                            h.plate = bar.is_none();
+                            h
+                        }
                         None => self
                             .units
                             .pick(ray, pick.occlusion.distance, &mut sticky.unit),

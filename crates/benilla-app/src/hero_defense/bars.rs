@@ -124,9 +124,27 @@ const ROLE_ICONS: [(char, &str, [f32; 4]); 5] = [
     ),
 ];
 
+/// Ukazatele na obrazovce (okno, logicke px, y dolu) a jejich jednotky v poradi kresleni (posledni
+/// navrchu). Najeti mysi na ukazatel je najeti na jednotku a klik ji vybere (`target::hover`), jako
+/// u nameplates WoW. Plati od dalsiho snimku.
+#[derive(Resource, Default)]
+pub(crate) struct BarHits(Vec<(Rect, Entity)>);
+
+impl BarHits {
+    /// Jednotka, jejiz ukazatel (navrchu) je pod kurzorem `at` (okno, logicke px).
+    pub(crate) fn at(&self, at: Vec2) -> Option<Entity> {
+        self.0
+            .iter()
+            .rev()
+            .find(|(r, _)| r.contains(at))
+            .map(|&(_, e)| e)
+    }
+}
+
 pub(super) fn plugin(app: &mut App) {
     app.init_resource::<AuraTimes>()
         .init_resource::<EnemyRoles>()
+        .init_resource::<BarHits>()
         .add_systems(Update, draw_bars.in_set(UiQuadAppend));
 }
 
@@ -325,6 +343,7 @@ struct Ghost {
 }
 
 struct Bar {
+    entity: Entity,
     dist: f32,
     centre: Vec2,
     scale: f32,
@@ -431,7 +450,9 @@ fn draw_bars(
     mut ghosts: Local<HashMap<Entity, Ghost>>,
     mut icons: IconWorld,
     mut quads: ResMut<UiQuads>,
+    mut hits: ResMut<BarHits>,
 ) {
+    hits.0.clear();
     let Ok((cam, cam_pose)) = world.camera.single() else {
         ghosts.clear();
         return;
@@ -557,6 +578,7 @@ fn draw_bars(
             None
         };
         bars.push(Bar {
+            entity,
             compact: attackable && frac >= 1.0 && !lit && auras.is_empty() && role != Some('B'),
             dist,
             centre: screen,
@@ -593,6 +615,14 @@ fn draw_bars(
         let top = snap(bar.centre.y - h);
         let outer = Rect::new(left - edge, top - edge, left + w + edge, top + h + edge);
         let inner = Rect::new(left, top, left + w, top + h);
+        // Klikaci plocha: ukazatel s ikonou role vlevo, aspon 8 px vysoka (nizky proužek).
+        {
+            let pad = ((8.0 * px - outer.height()) * 0.5).max(0.0);
+            let role = if bar.role.is_some() { h * ROLE_SIZE + 3.0 * bar.scale } else { 0.0 };
+            let a = ui.window_point(Vec2::new(outer.min.x - role, outer.min.y - pad));
+            let b = ui.window_point(Vec2::new(outer.max.x, outer.max.y + pad));
+            hits.0.push((Rect::from_corners(a, b), bar.entity));
+        }
         let push =
             |quads: &mut UiQuads, rect: Rect, color: [f32; 4], corners: Option<[[f32; 4]; 4]>| {
                 if rect.width() > 0.0 && rect.height() > 0.0 {
