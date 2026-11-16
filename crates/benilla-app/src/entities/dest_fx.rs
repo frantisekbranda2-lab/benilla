@@ -182,6 +182,24 @@ pub(super) fn arm_ground_effects(
     }
 }
 
+/// Hero Defense, not in 1.12: a spell-effect model at a world transform, built and played like a
+/// dest one-shot (`looping` false: one pass of its first sequence, then despawn) or looped until
+/// the caller despawns it (a falling boulder the caller moves).
+pub(crate) fn spawn_world_fx(
+    commands: &mut Commands,
+    path: &str,
+    transform: Transform,
+    looping: bool,
+) -> Entity {
+    commands
+        .spawn((
+            GroundFx::new(path.to_string(), looping),
+            transform,
+            Visibility::default(),
+        ))
+        .id()
+}
+
 /// Spawn the GO dest one-shots at once, never waiting on the DynamicObject create that follows.
 pub(super) fn spawn_ground_bursts(
     mut commands: Commands,

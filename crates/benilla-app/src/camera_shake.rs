@@ -162,12 +162,13 @@ pub(crate) struct CameraShakePlugin;
 impl Plugin for CameraShakePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<CameraShakes>()
+            .add_message::<PresetShake>()
             .add_systems(Startup, load_shakes.after(AssetSet::Open))
             // Capture-gated with the applier (in `crate::player`), which is what retires
             // records: an emitter running without it would leak a record per footfall.
             .add_systems(
                 Update,
-                (fire_shakes, fire_kit_shakes)
+                (fire_shakes, fire_kit_shakes, fire_preset_shakes)
                     .in_set(WorldStage::Present)
                     .run_if(not(resource_exists::<crate::run_mode::CaptureMode>)),
             );
@@ -187,6 +188,32 @@ fn load_shakes(mut commands: Commands, assets: Option<Res<WorldAssets>>) {
             commands.insert_resource(Shakes(t));
         }
         Err(e) => warn!("camera_shake: CameraShakes.dbc failed to load: {e:#}"),
+    }
+}
+
+/// Hero Defense, not in 1.12: shake one `CameraShakes.dbc` preset at a world point (boss mechanics,
+/// `crate::hero_defense` `telegraphs`).
+#[derive(Message, Clone, Copy)]
+pub(crate) struct PresetShake {
+    pub(crate) id: u32,
+    pub(crate) pos: Vec3,
+}
+
+fn fire_preset_shakes(
+    mut requests: MessageReader<PresetShake>,
+    time: Res<Time>,
+    shakes: Option<Res<Shakes>>,
+    mut live: ResMut<CameraShakes>,
+) {
+    let Some(shakes) = shakes else {
+        requests.clear();
+        return;
+    };
+    let now = time.elapsed_secs();
+    for req in requests.read() {
+        if let Some(row) = shakes.0.get(req.id) {
+            live.add(*row, req.pos, now);
+        }
     }
 }
 

@@ -38,6 +38,7 @@ mod bars;
 mod cards;
 mod grid;
 mod loading;
+mod telegraphs;
 
 /// Zdroj assetu s modely Hero Defense.
 const HD_SOURCE: &str = "hd";
@@ -151,6 +152,7 @@ pub(crate) fn plugin(app: &mut App) {
     cards::plugin(app);
     loading::plugin(app);
     bars::plugin(app);
+    telegraphs::plugin(app);
     app.add_systems(
         Update,
         (forget_rebuilt, swap_models, hide_original, keep_bound, wow_lit_materials).chain(),
@@ -161,11 +163,13 @@ pub(crate) fn plugin(app: &mut App) {
 /// Radek dat Hero Defense ze serveru (`SMSG_DBLOOKUP`: statistiky hrdinu, zebricek) jako Lua
 /// udalost `HD_GLUE_DATA` (arg1 = text) v prave bezicim VM: v menu ji cte vrstva
 /// `core/glue/HeroDefenseGlue`. Radek `AD` (doba debuffu na nepratelich) si vezmou ukazatele
-/// zivotu ([`bars::AuraTimes`]), do Lua nejde.
+/// zivotu ([`bars::AuraTimes`]), radky `TG`, `TGX` a `TM` (varovani na zemi, sipka nad jednotkou)
+/// [`telegraphs::Telegraphs`]; do Lua nejdou.
 fn on_hd_data(
     In(ev): In<benilla_protocol::SessionEvent>,
     script: Option<NonSendMut<benilla_ui::script::UiScript>>,
     mut aura_times: ResMut<bars::AuraTimes>,
+    mut telegraphs: ResMut<telegraphs::Telegraphs>,
     time: Res<Time>,
 ) {
     let benilla_protocol::SessionEvent::HdData(text) = ev else {
@@ -173,6 +177,9 @@ fn on_hd_data(
     };
     if let Some(rest) = text.strip_prefix("AD;") {
         aura_times.read(rest, time.elapsed_secs_f64());
+        return;
+    }
+    if telegraphs.read(&text, time.elapsed_secs_f64()) {
         return;
     }
     if let Some(mut script) = script {

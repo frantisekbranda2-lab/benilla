@@ -408,6 +408,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.category = 0;
         s.range_index = 35;
         set_effect(s, 0, 11, 1);
+        s.attributes = 65536;
     }
     // Serpent Sting (single)
     if let Some(s) = spells.get_mut(&1978) {
@@ -439,6 +440,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.range_index = 35;
         s.duration_index = 8;
         set_effect(s, 0, 3, 1);
+        s.attributes = 65536;
     }
     // Aimed Shot (single)
     if let Some(s) = spells.get_mut(&19434) {
@@ -469,6 +471,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.category = 0;
         s.range_index = 35;
         set_effect(s, 0, 124, 1);
+        s.attributes = 4259856;
     }
     // Multi-Shot (aoe)
     if let Some(s) = spells.get_mut(&2643) {
@@ -499,6 +502,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.category = 0;
         s.range_index = 35;
         set_effect(s, 0, 19, 1);
+        s.attributes = 65536;
     }
     // Volley (aoe)
     if let Some(s) = spells.get_mut(&1510) {
@@ -531,6 +535,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.duration_index = 35;
         set_radius(s, 14);
         set_effect(s, 0, 9, 1);
+        s.attributes = 65536;
         s.attributes_ex = 268435456;
         s.channel_interrupt_flags = 0;
     }
