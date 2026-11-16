@@ -121,6 +121,19 @@ impl EnchantCatalog {
         }
     }
 
+    /// Hero Defense: named rows the install does not carry (the item modifiers the server rolls
+    /// onto each item instance, `core` `hd_items.cpp`), flags 0. An id the table already names
+    /// keeps its row.
+    pub fn add_names(&mut self, names: impl IntoIterator<Item = (u32, String)>) {
+        for (id, name) in names {
+            if self.names.contains_key(&id) {
+                continue;
+            }
+            self.names.insert(id, name);
+            self.flags.entry(id).or_insert(0);
+        }
+    }
+
     /// `(enchant id, ItemVisuals id)` for the rows that carry one, in no order.
     pub fn iter_visuals(&self) -> impl Iterator<Item = (u32, i32)> + '_ {
         self.visuals.iter().map(|(k, v)| (*k, *v))

@@ -39,6 +39,7 @@ mod cards;
 // Klik na ukazatel zivotu = vyber jednotky (target::hover).
 pub(crate) use bars::BarHits;
 mod grid;
+pub(crate) mod item_names;
 mod loading;
 mod telegraphs;
 

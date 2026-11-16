@@ -994,7 +994,9 @@ fn setup_entities(
     }
     // `SpellItemEnchantment`: the enchant glow and the tooltip's enchant line.
     match benilla_formats::load_enchant_catalog(&mut chain) {
-        Ok(enchants) => {
+        Ok(mut enchants) => {
+            // Hero Defense: item modifiers rolled per instance (`hero_defense/item_names.rs`).
+            enchants.add_names(crate::hero_defense::item_names::hd_enchant_names());
             info!(
                 "enchant catalog: {} named, {} carrying a glow",
                 enchants.name_count(),
