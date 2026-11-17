@@ -649,6 +649,27 @@ pub(super) fn install_player_model(lua: &Lua) -> mlua::Result<()> {
         })?,
     )?;
 
+    // Hero Defense (v 1.12 neni, pozdejsi klienti maji stejnou metodu): `SetDisplayInfo(displayID)`
+    // ukaze tvora podle `CreatureDisplayInfo.dbc`, stejnou cestou jako `SetPetStablePaperdoll`
+    // ([`Model::set_pane_display`]). Addon HeroDefense tak kresli model nepritele v banneru
+    // ohlaseni vlny. 0 pane vyprazdni.
+    m.set(
+        "SetDisplayInfo",
+        lua.create_function(|lua, (this, id): (Table, Value)| {
+            with_model(lua, &this, |_| ())?;
+            let id = binding_abi::ftol(binding_abi::float_arg(
+                lua,
+                id,
+                "Usage: SetDisplayInfo(displayID)",
+            )?);
+            let h = frame_handle_of(lua, &this)?;
+            lua.app_data_mut::<Model>()
+                .expect("model app_data")
+                .set_pane_display(h, id.max(0) as u32);
+            Ok(())
+        })?,
+    )?;
+
     lua.set_named_registry_value(REG_PLAYERMODEL_METHODS, m)
 }
 

@@ -17,7 +17,7 @@
 //!
 //! Znazorneni aren na zemi je v [`grid`], vyber karty z knizky kouzel v [`cards`], vlastni
 //! nacitaci obrazovka v [`loading`], ukazatele zivotu nad jednotkami (misto nameplates WoW)
-//! v [`bars`].
+//! v [`bars`], sloup svetla nad mrtvolou s koristi v [`loot_beam`].
 
 use avian3d::prelude::{Collider, RigidBody};
 use bevy::asset::io::AssetSourceBuilder;
@@ -41,6 +41,7 @@ pub(crate) use bars::BarHits;
 mod grid;
 pub(crate) mod item_names;
 mod loading;
+mod loot_beam;
 pub(crate) mod spell_text;
 mod telegraphs;
 
@@ -157,6 +158,7 @@ pub(crate) fn plugin(app: &mut App) {
     loading::plugin(app);
     bars::plugin(app);
     telegraphs::plugin(app);
+    loot_beam::plugin(app);
     app.add_systems(
         Update,
         (forget_rebuilt, swap_models, hide_original, keep_bound, wow_lit_materials).chain(),
