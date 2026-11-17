@@ -3,15 +3,20 @@
 //! - `{zbran}` = poskozeni zbrane na dalku ("12-18"), `{dps}` = o kolik % zbran sili schopnosti, ktere
 //!   poskozeni zbrane nedavaji ("+24 %"; server `HD_RANGED_WEAPON_PCT_PER_DPS` za bod DPS zbrane,
 //!   `HdItems` v `hd_items.cpp`).
-//! - `{dmg:A-B}` / `{dmg:A}` = zakladni poskozeni a poskozeni s bonusy hrdiny ("15-19 (s bonusy 20-25)").
-//! - `{dmgw:N}` = poskozeni zbrane na blizko + N, s bonusy ("12-18 + 8 (s bonusy 26-35)").
-//! - `{bonus}` = rozpis bonusu ("+56 % (level +32 %, zbran +24 %)").
+//! - `{dmg:A-B}` / `{dmg:A}` = zakladni poskozeni ("15-19").
+//! - `{dmgw:N}` = poskozeni zbrane na blizko + N ("12-18 + 8").
+//! - `{bonus}` = rozpis bonusu ("+56 % (level +32 %, zbran +24 %)"); popisy ho od changelogu 67 nemaji.
 //!
-//! Bonus posila server (radek `HB;celkem;level;zbran`, `HdGame::SendHeroBonus`): level, zbran nebo hul,
-//! talenty, aury vezi a trinkety, tedy totez co `HdGame::DamageBonusPct`. Kriticky zasah a zranitelnost
-//! cile v nem nejsou.
+//! Bonus posila server (radek `HB;celkem;level;zbran`, `HdGame::SendHeroBonus`): level, zbran Warriora,
+//! talenty, aury vezi a trinkety, tedy totez co `HdGame::DamageBonusPct`.
+//!
+//! Pod popis kouzla hrdiny ([`damage_lines`], jen tooltip kouzla) pripoji rozpis poskozeni ze serveru
+//! (radek `SD;kouzlo;radek~radek~...`, `HdGame::SendSpellDamage`): vysledek bile, pod nim zelene, z ceho
+//! se sklada (zaklad, sila kouzel x koeficient, zbran, vylepseni, level, talenty...). Kriticky zasah,
+//! zranitelnost a brneni cile v nem nejsou.
 
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::sync::Mutex;
 
 use crate::net::ObjectStore;
@@ -21,6 +26,48 @@ const RANGED_WEAPON_PCT_PER_DPS: f32 = 8.0;
 
 /// Bonus hrdiny ze serveru: (celkem, level, zbran) v %.
 static HERO_BONUS: Mutex<Option<(i32, i32, i32)>> = Mutex::new(None);
+
+/// Rozpis poskozeni kouzel ze serveru: kouzlo -> radky (`~` mezi nimi).
+static SPELL_DAMAGE: Mutex<Option<HashMap<u32, String>>> = Mutex::new(None);
+
+/// Barva vysledku a rozpisu (zelena jako bonusy na predmetech).
+const RESULT_COLOR: &str = "|cffffffff";
+const PART_COLOR: &str = "|cff1eff00";
+
+/// Radek `SD;kouzlo;text` ze serveru (bez `SD;`).
+pub(crate) fn read_damage(rest: &str) {
+    let Some((spell, text)) = rest.split_once(';') else {
+        return;
+    };
+    let Ok(spell) = spell.trim().parse::<u32>() else {
+        return;
+    };
+    if let Ok(mut map) = SPELL_DAMAGE.lock() {
+        map.get_or_insert_with(HashMap::new)
+            .insert(spell, text.to_string());
+    }
+}
+
+/// Rozpis poskozeni kouzla pod popis (s prazdnym radkem pred nim), kdyz ho server poslal.
+pub(crate) fn damage_lines(spell: u32) -> Option<String> {
+    let map = SPELL_DAMAGE.lock().ok()?;
+    let text = map.as_ref()?.get(&spell)?;
+    let mut out = String::from("\n");
+    for line in text.split('~').filter(|l| !l.is_empty()) {
+        // Radky rozpisu zacinaji "+ ", vysledek ne.
+        let color = if line.starts_with('+') {
+            PART_COLOR
+        } else {
+            RESULT_COLOR
+        };
+        out.push('\n');
+        out.push_str(color);
+        // "|" by v textu zacal kod barvy.
+        out.push_str(&line.replace('|', "||"));
+        out.push_str("|r");
+    }
+    Some(out)
+}
 
 /// Radek `HB;celkem;level;zbran` ze serveru (bez `HB;`).
 pub(crate) fn read_bonus(rest: &str) {
@@ -36,10 +83,6 @@ fn bonus() -> Option<(i32, i32, i32)> {
     HERO_BONUS.lock().ok().and_then(|b| *b)
 }
 
-fn scaled(v: f32, pct: i32) -> i32 {
-    (v * (100 + pct) as f32 / 100.0).round() as i32
-}
-
 fn range(a: i32, b: i32) -> String {
     if a == b {
         a.to_string()
@@ -48,7 +91,7 @@ fn range(a: i32, b: i32) -> String {
     }
 }
 
-/// `{dmg:A-B}`: "A-B (s bonusy X-Y)".
+/// `{dmg:A-B}`: "A-B" (vysledek s bonusy je v rozpisu pod popisem).
 fn dmg_text(arg: &str) -> String {
     let (a, b) = match arg.split_once('-') {
         Some((a, b)) => (a.trim().parse::<f32>().ok(), b.trim().parse::<f32>().ok()),
@@ -60,16 +103,10 @@ fn dmg_text(arg: &str) -> String {
     let (Some(a), Some(b)) = (a, b) else {
         return arg.to_string();
     };
-    let base = range(a.round() as i32, b.round() as i32);
-    match bonus() {
-        Some((pct, _, _)) if pct != 0 => {
-            format!("{base} (s bonusy {})", range(scaled(a, pct), scaled(b, pct)))
-        }
-        _ => base,
-    }
+    range(a.round() as i32, b.round() as i32)
 }
 
-/// `{dmgw:N}`: poskozeni zbrane na blizko + N, s bonusy.
+/// `{dmgw:N}`: poskozeni zbrane na blizko + N (vysledek s bonusy je v rozpisu pod popisem).
 fn dmgw_text(arg: &str, me: Option<&ObjectStore>) -> String {
     let extra = arg.trim().parse::<f32>().unwrap_or(0.0);
     let Some(store) = me else {
@@ -79,25 +116,18 @@ fn dmgw_text(arg: &str, me: Option<&ObjectStore>) -> String {
     let min = f.unit_min_damage().unwrap_or(0.0);
     let max = f.unit_max_damage().unwrap_or(0.0);
     let weapon = range(min.round() as i32, max.round() as i32);
-    let base = format!("{weapon} + {}", extra.round() as i32);
-    let pct = bonus().map_or(0, |b| b.0);
-    format!(
-        "{base} (s bonusy {})",
-        range(scaled(min + extra, pct), scaled(max + extra, pct))
-    )
+    format!("{weapon} + {}", extra.round() as i32)
 }
 
 /// `{bonus}`: rozpis bonusu hrdiny.
-fn bonus_text(me: Option<&ObjectStore>) -> String {
+fn bonus_text() -> String {
     let Some((total, level, weapon)) = bonus() else {
         return "?".to_string();
     };
-    // Mage a Warlock: hul, ostatni zbran.
-    let caster = me
-        .and_then(|s| s.0.unit_class())
-        .is_some_and(|c| c == 8 || c == 9);
     let mut parts = vec![format!("level +{level} %")];
-    parts.push(format!("{} +{weapon} %", if caster { "hul" } else { "zbran" }));
+    if weapon != 0 {
+        parts.push(format!("zbran +{weapon} %"));
+    }
     let other = total - level - weapon;
     if other != 0 {
         parts.push(format!("ostatni {other:+} %"));
@@ -163,7 +193,7 @@ pub(crate) fn expand<'a>(text: &'a str, me: Option<&ObjectStore>) -> Cow<'a, str
         out = replace_tagged(&out, "dmg", dmg_text);
     }
     if out.contains("{bonus}") {
-        out = out.replace("{bonus}", &bonus_text(me));
+        out = out.replace("{bonus}", &bonus_text());
     }
     Cow::Owned(out)
 }

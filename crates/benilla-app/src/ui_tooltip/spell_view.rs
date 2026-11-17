@@ -483,8 +483,14 @@ fn expand(
         global: &|_| None,
         printf: &crate::ui_script::token_printf,
     };
-    // Hero Defense: {zbran} a {dps} v popisu kouzla hrdiny podle zbrane hrace.
-    let text = crate::hero_defense::spell_text::expand(text, vctx.store);
+    // Hero Defense: {zbran} a {dps} v popisu kouzla hrdiny podle zbrane hrace; pod popisem kouzla (ne
+    // aury) rozpis poskozeni ze serveru.
+    let mut text = crate::hero_defense::spell_text::expand(text, vctx.store).into_owned();
+    if !unmodified_points {
+        if let Some(lines) = crate::hero_defense::spell_text::damage_lines(d.id) {
+            text.push_str(&lines);
+        }
+    }
     tooltip_text(benilla_formats::substitute_parts(&text, d, &ctx, at))
 }
 

@@ -196,6 +196,11 @@ fn on_hd_data(
         spell_text::read_bonus(rest);
         return;
     }
+    // Rozpis poskozeni kouzla hrdiny pod jeho popis (spell_text.rs).
+    if let Some(rest) = text.strip_prefix("SD;") {
+        spell_text::read_damage(rest);
+        return;
+    }
     if telegraphs.read(&text, time.elapsed_secs_f64()) {
         return;
     }
