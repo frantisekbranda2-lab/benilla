@@ -97,9 +97,6 @@ fn role_icon_size(h: f32, role: char) -> f32 {
         (h * ROLE_SIZE).max(6.0)
     }
 }
-/// Hustá skupina nepřátel: nepřítel s plnými životy (ne v cíli, ne pod myší, bez debuffu) má jen nízký
-/// proužek bez textu (podíl výšky), at shluk nezakryje obrazovku.
-const COMPACT_H: f32 = 0.45;
 /// Ukazatele se nepřekrývají: překrytý se posune nahoru (o svou výšku a mezeru), nejvýš o tolik pater.
 /// Bližší jednotky a cíl zůstávají na místě. Pak se kreslí, i kdyby se překrýval.
 const MAX_STACK: usize = 6;
@@ -369,15 +366,16 @@ struct Bar {
     auras: Vec<(Handle<Image>, u8, Option<f32>)>,
     /// Role nepritele (ikona vlevo), [`EnemyRoles`].
     role: Option<char>,
-    /// Nizky proužek bez textu ([`COMPACT_H`]).
+    /// Nepritel s plnymi zivoty (ne v cili, ne pod mysi, bez debuffu): proužek bez textu zivotu,
+    /// stejne vysoky jako ostatni.
     compact: bool,
 }
 
 /// Sirka a vyska prouzku na obrazovce.
 fn bar_size(bar: &Bar, snap: &impl Fn(f32) -> f32) -> (f32, f32) {
     let w = snap((W_1080 * bar.scale).max(24.0));
-    let k = if bar.compact { COMPACT_H } else { 1.0 };
-    let h = snap((H_1080 * bar.scale * k).max(3.0));
+    // Vyska je vzdy stejna (i u kompaktniho bez textu), at proužek neskace, kdyz se objevi zivoty.
+    let h = snap((H_1080 * bar.scale).max(3.0));
     (w, h)
 }
 
@@ -675,7 +673,7 @@ fn draw_bars(
 
         // Zivoty na prouzku: "920/1000", bile s cernym obrysem, uprostred.
         let text_h = snap(h * 0.95);
-        if text_h >= HP_TEXT_MIN {
+        if text_h >= HP_TEXT_MIN && !bar.compact {
             if let Some(atlas) = icons.atlas.as_deref() {
                 let mut e = atlas.lock();
                 let glyphs = layout_text_quads(
