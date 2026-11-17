@@ -369,7 +369,8 @@ fn drop_indices<T>(v: &mut Vec<T>, mut idx: Vec<usize>) {
 }
 
 /// The `0x5efea0` source class (`K`) of an attacker entity; `None` suppresses the emit. Must agree
-/// with `combat_log::text::classify_source`, which classifies by guid.
+/// with `combat_log::text::classify_source`, which classifies by guid (Hero Defense: SummonedBy
+/// only, the player's units float nothing).
 fn source_class(
     attacker: Entity,
     self_player: &Query<(), With<crate::net::SelfPlayer>>,
@@ -382,7 +383,7 @@ fn source_class(
     let me = self_guid.0?;
     stores
         .get(attacker)
-        .is_ok_and(|st| st.0.unit_summoned_by() == Some(me) || st.0.unit_created_by() == Some(me))
+        .is_ok_and(|st| st.0.unit_summoned_by() == Some(me))
         .then_some(DamageSource::Pet)
 }
 

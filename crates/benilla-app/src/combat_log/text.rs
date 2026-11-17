@@ -40,6 +40,10 @@ fn gated_anchor(
 /// The source-ownership classifier `0x5efea0` (the colour law's `K`): `Player` for me, `Pet` for a
 /// unit whose SummonedBy or CreatedBy is me (pet, guardian, totem), `None` for anything else,
 /// whose damage is never drawn.
+///
+/// Hero Defense: the player's units (towers and their soldiers, CreatedBy = the player, server
+/// `hd_tower.cpp`) float nothing, only the hero's own numbers (and a real pet's, SummonedBy); their
+/// totals are in the damage meter ([`crate::hero_defense`] `meter`).
 pub(crate) fn classify_source(
     guid: u64,
     index: &GuidIndex,
@@ -52,8 +56,7 @@ pub(crate) fn classify_source(
     }
     let entity = index.0.get(&guid).copied()?;
     let store = stores.get(entity).ok()?;
-    (store.0.unit_summoned_by() == Some(me) || store.0.unit_created_by() == Some(me))
-        .then_some(DamageSource::Pet)
+    (store.0.unit_summoned_by() == Some(me)).then_some(DamageSource::Pet)
 }
 
 // The melee number and word (`SMSG_ATTACKERSTATEUPDATE`) spawn at the swing's impact keyframe
