@@ -667,12 +667,12 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.duration_index = 9;
         set_radius(s, 20);
     }
-    // Feign Death (defense)
-    if let Some(s) = spells.get_mut(&5384) {
-        s.name = "Feign Death".to_string();
+    // Rychle utoky (support)
+    if let Some(s) = spells.get_mut(&3045) {
+        s.name = "Rychle utoky".to_string();
         s.rank = None;
-        s.description = Some("Predstiras smrt: nepratele te prestanou napadat.".to_string());
-        s.aura_description = Some("Predstiras smrt: nepratele te prestanou napadat.".to_string());
+        s.description = Some("Na 5 s maji schopnosti, ktere v te dobe pouzijes, o 40 % kratsi cooldown a strelba je o 40 % rychlejsi.".to_string());
+        s.aura_description = Some("Na 5 s maji schopnosti, ktere v te dobe pouzijes, o 40 % kratsi cooldown a strelba je o 40 % rychlejsi.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -687,13 +687,19 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 41;
-        s.mana_cost = 5;
+        s.mana_cost = 10;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
-        s.recovery_ms = 30000;
+        s.recovery_ms = 20000;
         s.category_recovery_ms = 0;
         s.category = 0;
+        s.duration_index = 28;
+        set_effect(s, 0, 39, 1);
+        set_effect(s, 1, -41, 1);
+        s.effects[1] = 6;
+        s.effect_apply_aura[1] = 108;
+        s.effect_implicit_target_a[1] = 1;
     }
     // Aspect of the Eagle (support)
     if let Some(s) = spells.get_mut(&13165) {
@@ -727,12 +733,12 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.effects[1] = 0;
         s.effect_apply_aura[1] = 0;
     }
-    // Wing Clip (defense)
-    if let Some(s) = spells.get_mut(&2974) {
-        s.name = "Wing Clip".to_string();
+    // Jedova strela (single)
+    if let Some(s) = spells.get_mut(&3043) {
+        s.name = "Jedova strela".to_string();
         s.rank = None;
-        s.description = Some("Uder nablizko: poskozeni zbrane ({zbran}) + 2 poskozeni navic, zpomali nepritele o 50 % na 5 s.".to_string());
-        s.aura_description = Some("Uder nablizko: poskozeni zbrane ({zbran}) + 2 poskozeni navic, zpomali nepritele o 50 % na 5 s.".to_string());
+        s.description = Some("Strela spotrebuje tvuj Serpent Sting na cili a hned da poskozeni vsech jeho zbylych tiku + 10 jedoveho poskozeni navic. Kdyz cil Serpent Sting nema, strela nic neudela.".to_string());
+        s.aura_description = Some("Strela spotrebuje tvuj Serpent Sting na cili a hned da poskozeni vsech jeho zbylych tiku + 10 jedoveho poskozeni navic. Kdyz cil Serpent Sting nema, strela nic neudela.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -747,17 +753,19 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 9;
         s.spell_family_flags |= 1u64 << 43;
-        s.mana_cost = 6;
+        s.mana_cost = 8;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
         s.recovery_ms = 6000;
         s.category_recovery_ms = 0;
         s.category = 0;
-        s.duration_index = 28;
-        set_effect(s, 0, 2, 1);
-        set_effect(s, 1, 1, 1);
-        s.effects[1] = 121;
+        s.range_index = 35;
+        set_effect(s, 0, 9, 1);
+        s.effects[0] = 3;
+        s.effect_apply_aura[0] = 0;
+        s.mechanic = 0;
+        s.effect_mechanic[0] = 0;
     }
     // Fireball (single)
     if let Some(s) = spells.get_mut(&133) {
