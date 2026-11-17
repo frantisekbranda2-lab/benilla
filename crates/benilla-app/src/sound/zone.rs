@@ -84,6 +84,9 @@ const MUSIC_FADE_OUT_MS: u64 = 4000;
 /// (`0x46055e`, `0x460578`), and its own under `PlayMusic`/`StopMusic` (`0x46045d`): 3.0 s.
 const SERVER_MUSIC_FADE_MS: u64 = 3000;
 
+/// Hero Defense: `AreaTable` zona, jejiz hudbu klient hraje v oblasti hry (Elwynn Forest).
+const HD_MUSIC_AREA: u32 = 12;
+
 /// `0x460100(lo, hi)`: `hi` when `hi ≤ lo`, else `lo + MulHigh32(hi − lo, r)`, where `r` is the
 /// first draw of a generator seeded with 0 on each call (`0x46011e`), always 0x16be8aa9.
 fn music_delay_ms(lo: u32, hi: u32) -> u32 {
@@ -327,6 +330,17 @@ fn zone_audio(
             Some(r) => (r.music.map(|m| m.id).unwrap_or(0), r.intro),
             None => (0, None),
         };
+        // Hero Defense: venku v oblasti hry (Thousand Needles, Shimmering Flats; klient jinou zonu
+        // nenacita) hraje hudba Elwynn Forest misto hudby zony (Adam 17. 11. 2026). Zmenseny klient
+        // ji ma (core tools/region/trim_client.js --hudba-zony), interiery si nechavaji svou.
+        if resolved.is_some() {
+            if let Some(elwynn) = areas.0.resolve(HD_MUSIC_AREA) {
+                if let Some(m) = elwynn.music {
+                    music_row = m.id;
+                }
+                intro = elwynn.intro;
+            }
+        }
         if let Some(i) = inside {
             if i.zone_music != 0 {
                 music_row = i.zone_music;
