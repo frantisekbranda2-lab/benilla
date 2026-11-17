@@ -191,6 +191,11 @@ fn on_hd_data(
         roles.read(rest, time.elapsed_secs_f64());
         return;
     }
+    // Bonus k poskozeni hrdiny do popisu kouzel (spell_text.rs).
+    if let Some(rest) = text.strip_prefix("HB;") {
+        spell_text::read_bonus(rest);
+        return;
+    }
     if telegraphs.read(&text, time.elapsed_secs_f64()) {
         return;
     }
