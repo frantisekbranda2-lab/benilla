@@ -41,6 +41,7 @@ pub(crate) use bars::BarHits;
 mod grid;
 pub(crate) mod item_names;
 mod loading;
+pub(crate) mod spell_text;
 mod telegraphs;
 
 /// Zdroj assetu s modely Hero Defense.

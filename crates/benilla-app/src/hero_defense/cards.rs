@@ -214,6 +214,7 @@ fn sync_offer(
     asset_server: Res<AssetServer>,
     spells: Option<Res<crate::ui_action::Spells>>,
     mut fills: ResMut<Assets<FillMaterial>>,
+    me: Query<&crate::net::ObjectStore, With<crate::net::SelfPlayer>>,
 ) {
     let (serial, open, category, cards) = {
         let Ok(b) = HD_CARDS.lock() else { return };
@@ -241,6 +242,7 @@ fn sync_offer(
         category,
         &cards,
         spells.as_deref(),
+        me.single().ok(),
         &mut fills,
     );
     ui.root = Some(root);
@@ -252,6 +254,7 @@ fn spawn_root(
     category: u8,
     cards: &[HdCard],
     spells: Option<&crate::ui_action::Spells>,
+    me: Option<&crate::net::ObjectStore>,
     fills: &mut Assets<FillMaterial>,
 ) -> Entity {
     commands
@@ -279,7 +282,7 @@ fn spawn_root(
             })
             .with_children(|row| {
                 for (i, card) in cards.iter().enumerate() {
-                    spawn_card(row, f, i, card, spells, fills);
+                    spawn_card(row, f, i, card, spells, me, fills);
                 }
             });
             root.spawn(centered(f, "Klikni na kartu", 14.0, DIM));
@@ -315,6 +318,7 @@ fn spawn_card(
     i: usize,
     card: &HdCard,
     spells: Option<&crate::ui_action::Spells>,
+    me: Option<&crate::net::ObjectStore>,
     fills: &mut Assets<FillMaterial>,
 ) {
     let rc = rarity_color(card.rarity);
@@ -322,7 +326,7 @@ fn spawn_card(
     let mut desc = String::new();
     if card.is_new {
         if let Some(d) = spells.and_then(|s| s.catalog.get(card.spell)).and_then(|d| d.description.clone()) {
-            desc.push_str(&d);
+            desc.push_str(&super::spell_text::expand(&d, me));
             desc.push_str("\n\n");
         }
     }

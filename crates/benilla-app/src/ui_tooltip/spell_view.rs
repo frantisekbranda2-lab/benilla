@@ -483,7 +483,9 @@ fn expand(
         global: &|_| None,
         printf: &crate::ui_script::token_printf,
     };
-    tooltip_text(benilla_formats::substitute_parts(text, d, &ctx, at))
+    // Hero Defense: {zbran} a {dps} v popisu kouzla hrdiny podle zbrane hrace.
+    let text = crate::hero_defense::spell_text::expand(text, vctx.store);
+    tooltip_text(benilla_formats::substitute_parts(&text, d, &ctx, at))
 }
 
 /// The token engine's parts as the render reads them: each template it names by key, its stand-in
