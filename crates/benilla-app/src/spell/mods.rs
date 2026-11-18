@@ -49,6 +49,11 @@ pub(crate) const OP_COOLDOWN: u8 = 11;
 /// takes no modifier (`0x6e6b52`).
 const ATTR_EX3_IGNORE_CASTER_MODIFIERS: u32 = 0x2000_0000;
 
+/// Hero Defense: cooldown schopnosti hrdiny (vlastni bit rodiny 32 az 63, `core/tools/heroes/gen_spells.js`)
+/// se ze vsech zdroju dohromady (karty, itemy, aura Rychle utoky) zkrati nejvys o tolik %, jako server
+/// (`HD_MAX_TOTAL_CD_REDUCTION_PCT`, `Player::ApplySpellMod`). Odchylka od reference: ta strop nema.
+const HD_MAX_TOTAL_CD_REDUCTION_PCT: i32 = 80;
+
 /// A cell's offset in either table; the one expression writer and reader share. Callers
 /// range-check both arguments.
 fn index(mask_bit: u8, op: u8) -> usize {
@@ -193,6 +198,9 @@ impl SpellModifiers {
         }
         if flat == 0 && pct == 0 {
             return None;
+        }
+        if op == OP_COOLDOWN && d.spell_family_flags >> 32 != 0 {
+            pct = pct.max(-HD_MAX_TOTAL_CD_REDUCTION_PCT);
         }
         // The `+100` and the clamp at 0, once, here (`6e6bb4`..`6e6bc7`).
         Some(SpellMod {

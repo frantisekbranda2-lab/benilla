@@ -685,8 +685,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&3045) {
         s.name = "Rychle utoky".to_string();
         s.rank = None;
-        s.description = Some("Na 5 s maji schopnosti, ktere v te dobe pouzijes, o 40 % kratsi cooldown a strelba je o 40 % rychlejsi.".to_string());
-        s.aura_description = Some("Na 5 s maji schopnosti, ktere v te dobe pouzijes, o 40 % kratsi cooldown a strelba je o 40 % rychlejsi.".to_string());
+        s.description = Some("Na 5 s maji schopnosti, ktere v te dobe pouzijes, o 40 % kratsi cooldown (vylepseni Sila zkracuje vic, cooldown celkem nejvys o 80 %).".to_string());
+        s.aura_description = Some("Na 5 s maji schopnosti, ktere v te dobe pouzijes, o 40 % kratsi cooldown (vylepseni Sila zkracuje vic, cooldown celkem nejvys o 80 %).".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -709,8 +709,9 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.category_recovery_ms = 0;
         s.category = 0;
         s.duration_index = 28;
-        set_effect(s, 0, 39, 1);
         set_effect(s, 1, -41, 1);
+        s.effects[0] = 0;
+        s.effect_apply_aura[0] = 0;
         s.effects[1] = 6;
         s.effect_apply_aura[1] = 108;
         s.effect_implicit_target_a[1] = 1;
