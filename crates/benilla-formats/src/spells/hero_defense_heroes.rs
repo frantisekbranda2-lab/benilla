@@ -1159,8 +1159,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&172) {
         s.name = "Corruption".to_string();
         s.rank = None;
-        s.description = Some("Okamzite: {dmg:4} poskozeni kazde 3 s po 18 s (celkem {dmg:24}).".to_string());
-        s.aura_description = Some("Okamzite: {dmg:4} poskozeni kazde 3 s po 18 s (celkem {dmg:24}).".to_string());
+        s.description = Some("Okamzite: {dmg:12} poskozeni kazde 3 s po 24 s (celkem {dmg:96}), bez uvodniho zasahu.".to_string());
+        s.aura_description = Some("Okamzite: {dmg:12} poskozeni kazde 3 s po 24 s (celkem {dmg:96}), bez uvodniho zasahu.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -1183,8 +1183,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 4;
-        s.duration_index = 85;
-        set_effect(s, 0, 3, 1);
+        s.duration_index = 106;
+        set_effect(s, 0, 11, 1);
     }
     // Shadow Bolt (single)
     if let Some(s) = spells.get_mut(&686) {
