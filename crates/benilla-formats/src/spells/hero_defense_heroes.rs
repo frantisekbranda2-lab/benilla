@@ -582,8 +582,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&13809) {
         s.name = "Frost Trap".to_string();
         s.rank = None;
-        s.description = Some("Polozi pod sebe mrazivou past. Kdo jde pres ni, zpomali se o 60 %. Past vydrzi 60 s.".to_string());
-        s.aura_description = Some("Polozi pod sebe mrazivou past. Kdo jde pres ni, zpomali se o 60 %. Past vydrzi 60 s.".to_string());
+        s.description = Some("Mraziva past pod nejblizsiho nepritele do 30 yd: zamrzla zem 10 yd na 30 s, kdo v ni je, zpomali se o 60 %.".to_string());
+        s.aura_description = Some("Mraziva past pod nejblizsiho nepritele do 30 yd: zamrzla zem 10 yd na 30 s, kdo v ni je, zpomali se o 60 %.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -605,7 +605,21 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.recovery_ms = 15000;
         s.category_recovery_ms = 0;
         s.category = 0;
+        s.range_index = 4;
+        s.effects[0] = 3;
+        s.effect_implicit_target_a[0] = 1;
         s.attributes = 65536;
+    }
+    // Frost Trap: ucinek (13810)
+    if let Some(s) = spells.get_mut(&13810) {
+        s.spell_family = 9;
+        s.spell_family_flags |= 1u64 << 38;
+        s.effect_dice_per_level = [0; 3];
+        s.duration_index = 9;
+        set_radius(s, 13);
+        s.effect_apply_aura[0] = 4;
+        s.effects[1] = 0;
+        s.effect_apply_aura[1] = 0;
     }
     // Hunter's Mark (support)
     if let Some(s) = spells.get_mut(&1130) {
@@ -1490,9 +1504,6 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         set_effect(s, 0, 4, 1);
         s.attributes_ex = 16384;
         s.channel_interrupt_flags = 0;
-    }
-    if let Some(s) = spells.get_mut(&13810) {
-        s.effect_apply_aura[0] = 4;
     }
     if let Some(s) = spells.get_mut(&23605) {
         s.effect_apply_aura[0] = 4;

@@ -96,13 +96,26 @@ const MODELS: &[CustomModel] = &[
 //     }
 // }
 
-/// Veze Hero Defense: 90300 + linie * 10 + varianta (server `hd_defs.h`).
+/// Veze Hero Defense: 90300 + linie * 10 + varianta, 4 rasy po 7 liniich (server `hd_defs.h`).
 const TOWER_FIRST: u32 = 90300;
-const TOWER_LAST: u32 = 90509;
+const TOWER_LAST: u32 = 90579;
 
-/// Vez nebo jednotka vyvolana vezi (90300 az 90529, server `hd_defs.h`), podle cisla zaznamu.
+/// Vez nebo jednotka vyvolana vezi (90300 az 90599: vyvolane 90590 az 90599, server `hd_defs.h`),
+/// podle cisla zaznamu.
 pub(crate) fn is_tower_unit(entry: u32) -> bool {
-    (TOWER_FIRST..=90529).contains(&entry)
+    (TOWER_FIRST..=90599).contains(&entry)
+}
+
+/// Dark Frost Wyrm (server `gen_units.js`, linie 27 varianta 2): stejny model jako Chilling Frost Wyrm.
+const DARK_FROST_WYRM: u32 = 90572;
+
+/// Stala barva modelu jednotky (nasobi texturu jako tint aury): varianty se stejnym modelem z klienta
+/// se tak lisi. `None` = bez tintu. Tint aury (zmrazeni, duch) ma prednost.
+pub(crate) fn unit_tint(entry: u32) -> Option<[u8; 3]> {
+    match entry {
+        DARK_FROST_WYRM => Some([95, 80, 150]), // tmave fialovomodry
+        _ => None,
+    }
 }
 
 /// Index vlastniho modelu jednotky do [`MODELS`]. Vez se vylepsuje zmenou zaznamu na serveru

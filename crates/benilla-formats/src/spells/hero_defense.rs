@@ -3,7 +3,7 @@
 //! Server stavi veze pres existujici NPC kouzla klienta (mireni na zem, bez ceny), ktera si
 //! v `spell_template` prepise na vyvolani veze (`sql/hero_defense/hero_defense_towers.sql`).
 //! Klient by u nich ukazal puvodni nazev a ikonu (Meteor, Blizzard...), proto je tu prepisuje.
-//! Cisla kouzel musi sedet s `HD_LINES` v serveru (`src/scripts/custom/hd_defs.h`): 3 rasy po
+//! Cisla kouzel musi sedet s `HD_LINES` v serveru (`src/scripts/custom/hd_defs.h`): 4 rasy po
 //! 7 liniich vezi, kouzlo stavi zakladni vez linie (vylepseni jsou v panelu veze v addonu).
 
 use std::collections::HashMap;
@@ -14,7 +14,7 @@ use super::SpellDisplay;
 const HD_RANGE_ANYWHERE: u32 = 13;
 
 /// (kouzlo, nazev zakladni veze, rasa, ikona); poradi jako `HD_LINES` v serveru.
-const TOWER_SPELLS: [(u32, &str, &str, &str); 21] = [
+const TOWER_SPELLS: [(u32, &str, &str, &str); 28] = [
     (13808, "Puskar", "Human", "INV_Weapon_Rifle_01"),
     (25823, "Knez", "Human", "Spell_Holy_Renew"),
     (8333, "Mechano-tank", "Human", "INV_Misc_Bomb_05"),
@@ -36,6 +36,14 @@ const TOWER_SPELLS: [(u32, &str, &str, &str); 21] = [
     (3823, "Grunt", "Orc", "Ability_Warrior_Cleave"),
     (23056, "Tauren", "Orc", "Ability_Warrior_Charge"),
     (897, "Wind Rider", "Orc", "Ability_Hunter_Pet_Vulture"),
+    // Undead (changelog 75 v core): nosice bez vizualu kouzla.
+    (261, "Skeletal Warrior", "Undead", "Spell_Shadow_RaiseDead"),
+    (20734, "Necromancer", "Undead", "Spell_Shadow_AnimateDead"),
+    (26620, "Banshee", "Undead", "Spell_Shadow_DeathScream"),
+    (16771, "Abomination", "Undead", "Spell_Shadow_AbominationExplosion"),
+    (17678, "Flesh Hurler", "Undead", "Spell_Shadow_PlagueCloud"),
+    (13487, "Dark Priest", "Undead", "Spell_Shadow_DarkRitual"),
+    (30758, "Young Frost Wyrm", "Undead", "Spell_Frost_FreezingBreath"),
 ];
 
 pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {

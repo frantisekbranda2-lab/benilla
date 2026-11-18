@@ -137,6 +137,7 @@ pub(crate) fn apply_aura_tint(
     chain: Query<(
         Option<&AuraNodes>,
         Option<&benilla_world::model_fade::ParentModel>,
+        Option<&crate::net::ObjectStore>,
     )>,
     mut tints: ResMut<benilla_world::instance_tint::InstanceTints>,
     mut probe_logged: Local<bool>,
@@ -160,19 +161,28 @@ pub(crate) fn apply_aura_tint(
 /// The tint a rig renders with: its own head node, else the nearest up its
 /// [`benilla_world::model_fade::ParentModel`] chain, as the reference composes an attached model's
 /// colours onto its parent's (`0x714000`); only this walk reaches a rigged item's own slot.
+/// Hero Defense: a unit with no aura tint takes its entry's fixed colour
+/// ([`crate::hero_defense::unit_tint`]).
 fn chained_tint(
     chain: &Query<(
         Option<&AuraNodes>,
         Option<&benilla_world::model_fade::ParentModel>,
+        Option<&crate::net::ObjectStore>,
     )>,
     instance: Entity,
 ) -> Option<[u8; 3]> {
     let mut at = instance;
     for _ in 0..benilla_world::model_fade::MAX_MODEL_CHAIN {
-        let Ok((nodes, parent)) = chain.get(at) else {
+        let Ok((nodes, parent, store)) = chain.get(at) else {
             return None;
         };
         if let Some(rgb) = nodes.and_then(AuraNodes::head_tint) {
+            return Some(rgb);
+        }
+        if let Some(rgb) = store
+            .and_then(|s| s.0.object_entry())
+            .and_then(crate::hero_defense::unit_tint)
+        {
             return Some(rgb);
         }
         at = parent?.0;
