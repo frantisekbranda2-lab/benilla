@@ -42,6 +42,7 @@ mod grid;
 pub(crate) mod item_names;
 mod loading;
 mod loot_beam;
+mod remote_log;
 pub(crate) mod spell_text;
 mod telegraphs;
 
@@ -172,6 +173,7 @@ pub(crate) fn plugin(app: &mut App) {
     bars::plugin(app);
     telegraphs::plugin(app);
     loot_beam::plugin(app);
+    remote_log::plugin(app);
     app.add_systems(
         Update,
         (forget_rebuilt, swap_models, hide_original, keep_bound, wow_lit_materials).chain(),
@@ -191,6 +193,7 @@ fn on_hd_data(
     mut aura_times: ResMut<bars::AuraTimes>,
     mut roles: ResMut<bars::EnemyRoles>,
     mut telegraphs: ResMut<telegraphs::Telegraphs>,
+    mut remote_log: ResMut<remote_log::RemoteLog>,
     time: Res<Time>,
 ) {
     let benilla_protocol::SessionEvent::HdData(text) = ev else {
@@ -206,6 +209,8 @@ fn on_hd_data(
     }
     // Bonus k poskozeni hrdiny do popisu kouzel (spell_text.rs).
     if let Some(rest) = text.strip_prefix("HB;") {
+        // HB chodi jen ve hre (aspon kazdych 10 s): centralni log muze posilat (remote_log.rs).
+        remote_log.last_data = Some(time.elapsed_secs_f64());
         spell_text::read_bonus(rest);
         return;
     }
