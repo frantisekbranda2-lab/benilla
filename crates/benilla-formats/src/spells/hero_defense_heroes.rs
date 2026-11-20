@@ -877,8 +877,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&1449) {
         s.name = "Arcane Explosion".to_string();
         s.rank = None;
-        s.description = Some("Vybuch arkanni sily: {dmg:15-18} poskozeni vsem do 10 yd.".to_string());
-        s.aura_description = Some("Vybuch arkanni sily: {dmg:15-18} poskozeni vsem do 10 yd.".to_string());
+        s.description = Some("Vybuch arkanni sily: {dmg:14-16} poskozeni vsem do 10 yd.".to_string());
+        s.aura_description = Some("Vybuch arkanni sily: {dmg:14-16} poskozeni vsem do 10 yd.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -901,14 +901,14 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.category_recovery_ms = 0;
         s.category = 0;
         set_radius(s, 13);
-        set_effect(s, 0, 14, 4);
+        set_effect(s, 0, 13, 3);
     }
     // Blizzard (aoe)
     if let Some(s) = spells.get_mut(&10) {
         s.name = "Blizzard".to_string();
         s.rank = None;
-        s.description = Some("Ledova boure na zem: {dmg:15} poskozeni kazdou sekundu vsem do 8 yd po 6 s. Hrdina muze dal bojovat.".to_string());
-        s.aura_description = Some("Ledova boure na zem: {dmg:15} poskozeni kazdou sekundu vsem do 8 yd po 6 s. Hrdina muze dal bojovat.".to_string());
+        s.description = Some("Ledova boure na zem: {dmg:13-14} poskozeni kazdou sekundu vsem do 8 yd po 6 s. Hrdina muze dal bojovat.".to_string());
+        s.aura_description = Some("Ledova boure na zem: {dmg:13-14} poskozeni kazdou sekundu vsem do 8 yd po 6 s. Hrdina muze dal bojovat.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -933,7 +933,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.range_index = 4;
         s.duration_index = 32;
         set_radius(s, 14);
-        set_effect(s, 0, 14, 1);
+        set_effect(s, 0, 12, 2);
         s.attributes_ex = 268435592;
         s.channel_interrupt_flags = 0;
     }
@@ -941,8 +941,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&2120) {
         s.name = "Flamestrike".to_string();
         s.rank = None;
-        s.description = Some("Ohen na zem: {dmg:18-23} poskozeni vsem do 8 yd a pak {dmg:3} za kazde 2 s po 8 s.".to_string());
-        s.aura_description = Some("Ohen na zem: {dmg:18-23} poskozeni vsem do 8 yd a pak {dmg:3} za kazde 2 s po 8 s.".to_string());
+        s.description = Some("Ohen na zem: {dmg:15-20} poskozeni vsem do 8 yd a pak {dmg:3} za kazde 2 s po 8 s.".to_string());
+        s.aura_description = Some("Ohen na zem: {dmg:15-20} poskozeni vsem do 8 yd a pak {dmg:3} za kazde 2 s po 8 s.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -967,7 +967,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.range_index = 4;
         s.duration_index = 31;
         set_radius(s, 14);
-        set_effect(s, 0, 17, 6);
+        set_effect(s, 0, 14, 6);
         set_effect(s, 1, 2, 1);
     }
     // Arcane Brilliance (support)
