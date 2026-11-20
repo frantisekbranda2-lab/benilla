@@ -31,6 +31,10 @@ const DIM: Color = Color::srgb(0.6, 0.6, 0.6);
 
 const CARD_W: f32 = 236.0;
 const CARD_H: f32 = 330.0;
+/// Karta rasy stavby je vyssi: pod obrazkem ma strom v bodech.
+const RACE_CARD_H: f32 = 430.0;
+/// Kategorie nabidky "vyber rasy stavby" (server `HD_CARDS_RACE`): az 5 karet, bez "Vybrat pozdeji".
+const RACE_CATEGORY: u8 = 5;
 /// Sekundy mezi dopadem jedne karty a dalsi.
 const DEAL_STAGGER: f32 = 0.09;
 const DEAL_SECS: f32 = 0.38;
@@ -38,8 +42,10 @@ const PICK_SECS: f32 = 0.28;
 
 const RARITY_NAMES: [&str; 5] = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
 const RARITY_COLORS: [Color; 5] = [COMMON, UNCOMMON, RARE, EPIC, LEGENDARY];
-/// Nadpis podle kategorie nabidky: 0 az 3 knizky, 4 vyber za level (`HdSpellbook::Update`).
-const TITLES: [&str; 5] = ["KNIHA UTOKU", "KNIHA ZKAZY", "KNIHA PODPORY", "KNIHA OBRANY", "NOVY LEVEL"];
+/// Nadpis podle kategorie nabidky: 0 az 3 knizky, 4 vyber za level (`HdSpellbook::Update`), 5 vyber
+/// rasy stavby na zacatku hry (`HdSpellbook::OfferRace`).
+const TITLES: [&str; 6] =
+    ["KNIHA UTOKU", "KNIHA ZKAZY", "KNIHA PODPORY", "KNIHA OBRANY", "NOVY LEVEL", "VYBER RASU"];
 
 fn rarity_color(r: u8) -> Color {
     RARITY_COLORS[usize::from(r.min(4))]
@@ -257,6 +263,7 @@ fn spawn_root(
     me: Option<&crate::net::ObjectStore>,
     fills: &mut Assets<FillMaterial>,
 ) -> Entity {
+    let race = category == RACE_CATEGORY;
     commands
         .spawn((
             Node {
@@ -274,18 +281,24 @@ fn spawn_root(
         .with_children(|root| {
             let title = TITLES.get(usize::from(category)).copied().unwrap_or("KNIHA KOUZEL");
             root.spawn(centered(f, title, 52.0, GOLD));
-            root.spawn(centered(f, "Vyber si kartu", 16.0, Color::srgb(0.85, 0.78, 0.6)));
+            let hint = if race { "Za koho budes stavet jednotky" } else { "Vyber si kartu" };
+            root.spawn(centered(f, hint, 16.0, Color::srgb(0.85, 0.78, 0.6)));
             root.spawn(Node {
-                column_gap: Val::Px(22.0),
+                // Pet karet ras vedle sebe: uzsi mezery, at se vejdou i na mensi obrazovku.
+                column_gap: Val::Px(if race { 14.0 } else { 22.0 }),
                 margin: UiRect::new(Val::ZERO, Val::ZERO, Val::Px(28.0), Val::Px(16.0)),
                 ..default()
             })
             .with_children(|row| {
                 for (i, card) in cards.iter().enumerate() {
-                    spawn_card(row, f, i, card, spells, me, fills);
+                    spawn_card(row, f, i, card, race, spells, me, fills);
                 }
             });
             root.spawn(centered(f, "Klikni na kartu", 14.0, DIM));
+            // Vyber rasy nema "Vybrat pozdeji": hrac klikne na kartu rasy (i te, kterou uz ma).
+            if race {
+                return;
+            }
             // Vybrat pozdeji: maly panel jako karta (zlaty ram, tmavy prechod).
             root.spawn((
                 LaterButton,
@@ -312,16 +325,21 @@ fn spawn_root(
         .id()
 }
 
+#[allow(clippy::too_many_arguments)]
 fn spawn_card(
     row: &mut bevy::ecs::hierarchy::ChildSpawnerCommands,
     f: &Handle<Font>,
     i: usize,
     card: &HdCard,
+    race: bool,
     spells: Option<&crate::ui_action::Spells>,
     me: Option<&crate::net::ObjectStore>,
     fills: &mut Assets<FillMaterial>,
 ) {
     let rc = rarity_color(card.rarity);
+    // Karta rasy: vyssi, vetsi obrazek, bez jmena rarity a text v bodech zarovnany vlevo.
+    let card_h = if race { RACE_CARD_H } else { CARD_H };
+    let icon = if race { 96.0 } else { 74.0 };
     // Nove kouzlo: jeho popis z klienta nad bonusem ze serveru.
     let mut desc = String::new();
     if card.is_new {
@@ -356,7 +374,7 @@ fn spawn_card(
         RelativeCursorPosition::default(),
         Node {
             width: Val::Px(CARD_W),
-            height: Val::Px(CARD_H),
+            height: Val::Px(card_h),
             flex_direction: FlexDirection::Column,
             align_items: AlignItems::Center,
             padding: UiRect::new(Val::Px(16.0), Val::Px(16.0), Val::Px(18.0), Val::Px(14.0)),
@@ -376,7 +394,7 @@ fn spawn_card(
     ))
     .with_children(|c| {
         // Tmava licni strana osvetlena shora barvou rarity.
-        let inner_h = CARD_H - 4.0;
+        let inner_h = card_h - 4.0;
         c.spawn((
             Node {
                 position_type: PositionType::Absolute,
@@ -412,13 +430,15 @@ fn spawn_card(
         })
         .with_children(|top| {
             top.spawn(text(f, format!("{}", i + 1), 15.0, DIM));
-            top.spawn(text(f, RARITY_NAMES[usize::from(card.rarity.min(4))], 13.0, rc));
+            // U karty rasy je rarita jen barva karty, jmeno rarity by matlo.
+            let rarity = if race { "" } else { RARITY_NAMES[usize::from(card.rarity.min(4))] };
+            top.spawn(text(f, rarity, 13.0, rc));
         });
         // Ikona v pozlacenem luzku.
         c.spawn((
             Node {
-                width: Val::Px(74.0),
-                height: Val::Px(74.0),
+                width: Val::Px(icon),
+                height: Val::Px(icon),
                 margin: UiRect::vertical(Val::Px(6.0)),
                 border: UiRect::all(Val::Px(2.0)),
                 border_radius: BorderRadius::ZERO,
@@ -485,7 +505,8 @@ fn spawn_card(
                 ColorStop::percent(rc.with_alpha(0.0), 100.0),
             ])),
         ));
-        c.spawn(centered(f, "", 13.0, Color::srgb(0.92, 0.9, 0.84)))
+        let justify = if race { Justify::Left } else { Justify::Center };
+        c.spawn((text(f, "", 13.0, Color::srgb(0.92, 0.9, 0.84)), TextLayout::new_with_justify(justify)))
             .with_children(|t| {
                 for (k, (line, rare)) in lines.iter().enumerate() {
                     let body = if k + 1 < lines.len() { format!("{line}\n") } else { line.clone() };

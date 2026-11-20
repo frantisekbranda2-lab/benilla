@@ -4,7 +4,8 @@
 //! parses it and hands it here, and the app (`benilla-app` `hero_defense/cards.rs`) draws the cards
 //! and records the pick, which the addon reads back and sends to the server:
 //!
-//! - `HeroDefense_CardsBegin(category)` starts a new offer (0 single target .. 3 defense);
+//! - `HeroDefense_CardsBegin(category)` starts a new offer (0 single target .. 3 defense, 4 level up,
+//!   5 build race pick at game start: up to 5 cards, no "pick later");
 //! - `HeroDefense_CardsAdd(spell, rarity, isNew, rank, maxRank, name, tag, text)` adds a card
 //!   (rarity 0 Common .. 4 Legendary, `text` lines separated by `^`, `>>` drawn as an arrow);
 //! - `HeroDefense_CardsShow()` shows the offer, `HeroDefense_CardsHide()` closes it;
