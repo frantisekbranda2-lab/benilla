@@ -20,9 +20,10 @@ const HAND_ARROW: u16 = 0x23;
 pub(crate) struct Bowstring {
     /// The unit wearing the bow, which carries the HandArrow attach and the nock latch.
     pub(crate) owner: Entity,
-    /// The `$WTT` top and `$WTB` bottom anchors as `(bone, model-local offset)`.
-    pub(crate) top: (u16, Vec3),
-    pub(crate) bottom: (u16, Vec3),
+    /// The `$WTT` top and `$WTB` bottom anchors as `(bone, model-local point, pivot-relative
+    /// offset)`.
+    pub(crate) top: (u16, Vec3, Vec3),
+    pub(crate) bottom: (u16, Vec3, Vec3),
 }
 
 /// Draws every visible bow's string, tip to middle to tip, from this frame's joint frames.
@@ -48,10 +49,11 @@ fn draw_bowstrings(
             continue;
         }
         // The prop's own pose when it flexes (`joints_root` is this entity); its rigid frame
-        // otherwise.
-        let tip = |(bone, offset): (u16, Vec3)| {
+        // otherwise. The pose takes the pivot-relative offset, the rigid frame the model-local
+        // point: a tip marker sits on its bone's pivot, so posing the point doubles the string.
+        let tip = |(bone, point, offset): (u16, Vec3, Vec3)| {
             flex.and_then(|p| p.posed_point(prop, bone, offset))
-                .unwrap_or_else(|| prop.transform_point(offset))
+                .unwrap_or_else(|| prop.transform_point(point))
         };
         let top = tip(bs.top);
         let bottom = tip(bs.bottom);

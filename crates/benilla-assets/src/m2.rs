@@ -65,9 +65,10 @@ pub struct M2Model {
     /// The whole camera table by raw index, for `SetCamera(n)`; an index past its end leaves the
     /// pane on the orthographic leg.
     pub cameras: Vec<PaneCamera>,
-    /// A bow's `$WTT`/`$WTB` string ends `[top, bottom]` as (bone, Bevy-space point), for the
-    /// string drawer `0x611ff0`.
-    pub string_anchors: Option<[(u16, Vec3); 2]>,
+    /// A bow's `$WTT`/`$WTB` string ends `[top, bottom]` as (bone, Bevy-space point, that point
+    /// relative to the bone's pivot), for the string drawer `0x611ff0`. A posed rig takes the
+    /// pivot-relative offset, as every other `(bone, offset)` pair does; the rigid frame the point.
+    pub string_anchors: Option<[(u16, Vec3, Vec3); 2]>,
     /// The fishing pole's `$CCH` rod tip, Bevy space, where the line draw `0x61f780` starts.
     pub cch_marker: Option<Vec3>,
     /// The header's `GlobalModelFlags` (`+0x10`); bits `&3` conform the model to the ground
@@ -645,10 +646,12 @@ impl AssetLoader for M2ModelLoader {
             .collect();
 
         let string_anchors = benilla_formats::parse_m2_string_anchors(&bytes).map(|a| {
-            [
-                (a.top.0, wow_to_bevy(a.top.1)),
-                (a.bottom.0, wow_to_bevy(a.bottom.1)),
-            ]
+            let anchor = |(bone, position): (u16, [f32; 3])| {
+                let point = wow_to_bevy(position);
+                let pivot = pivots.get(bone as usize).copied().unwrap_or(Vec3::ZERO);
+                (bone, point, point - pivot)
+            };
+            [anchor(a.top), anchor(a.bottom)]
         });
 
         let cch_marker = benilla_formats::parse_m2_cch_marker(&bytes).map(|(_, p)| wow_to_bevy(p));

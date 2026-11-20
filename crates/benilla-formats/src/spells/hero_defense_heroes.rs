@@ -28,7 +28,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Uder zbrani: {dmgw:8} poskozeni.".to_string());
         s.aura_description = Some("Uder zbrani: {dmgw:8} poskozeni.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -42,7 +42,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 32;
-        s.mana_cost = 3;
+        s.mana_cost = 30;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -58,7 +58,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Krvaceni: {dmg:4} poskozeni kazde 3 s po 15 s.".to_string());
         s.aura_description = Some("Krvaceni: {dmg:4} poskozeni kazde 3 s po 15 s.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -72,7 +72,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 33;
-        s.mana_cost = 6;
+        s.mana_cost = 60;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -88,7 +88,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Silny uder zbrani: {dmgw:20} poskozeni.".to_string());
         s.aura_description = Some("Silny uder zbrani: {dmgw:20} poskozeni.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -102,7 +102,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 34;
-        s.mana_cost = 12;
+        s.mana_cost = 120;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -117,7 +117,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Uder zasahne az 3 nepratele pred tebou, kazdemu {dmgw:15} poskozeni.".to_string());
         s.aura_description = Some("Uder zasahne az 3 nepratele pred tebou, kazdemu {dmgw:15} poskozeni.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -131,7 +131,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 35;
-        s.mana_cost = 8;
+        s.mana_cost = 80;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -147,7 +147,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Vir: zasahne vsechny nepratele do 8 yd, kazdemu {dmgw:20} poskozeni.".to_string());
         s.aura_description = Some("Vir: zasahne vsechny nepratele do 8 yd, kazdemu {dmgw:20} poskozeni.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -161,7 +161,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 36;
-        s.mana_cost = 15;
+        s.mana_cost = 150;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -177,7 +177,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Uder do zeme: {dmg:10} poskozeni vsem do 8 yd a zpomali je o 30 % na 4 s.".to_string());
         s.aura_description = Some("Uder do zeme: {dmg:10} poskozeni vsem do 8 yd a zpomali je o 30 % na 4 s.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -191,7 +191,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 37;
-        s.mana_cost = 10;
+        s.mana_cost = 100;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -208,7 +208,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Tve jednotky do 20 yd davaji o 15 % vic poskozeni po 20 s.".to_string());
         s.aura_description = Some("Tve jednotky do 20 yd davaji o 15 % vic poskozeni po 20 s.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -222,7 +222,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 38;
-        s.mana_cost = 10;
+        s.mana_cost = 100;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -238,7 +238,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Nepratele do 10 yd davaji o 20 % mene poskozeni po 15 s.".to_string());
         s.aura_description = Some("Nepratele do 10 yd davaji o 20 % mene poskozeni po 15 s.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -252,7 +252,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 39;
-        s.mana_cost = 10;
+        s.mana_cost = 100;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -268,7 +268,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Nepratele do 10 yd utoci 6 s jen na tebe (chrani jednotky).".to_string());
         s.aura_description = Some("Nepratele do 10 yd utoci 6 s jen na tebe (chrani jednotky).".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -282,7 +282,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 40;
-        s.mana_cost = 8;
+        s.mana_cost = 0;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -298,7 +298,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Dostavas o 50 % mene poskozeni po 10 s.".to_string());
         s.aura_description = Some("Dostavas o 50 % mene poskozeni po 10 s.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -312,7 +312,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 41;
-        s.mana_cost = 8;
+        s.mana_cost = 0;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -328,7 +328,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Okamzite ti vrati 30 % maximalniho zivota.".to_string());
         s.aura_description = Some("Okamzite ti vrati 30 % maximalniho zivota.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -342,7 +342,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 42;
-        s.mana_cost = 8;
+        s.mana_cost = 0;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
@@ -356,7 +356,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.rank = None;
         s.description = Some("Po 10 s vracis uder kazdemu, kdo te zasahne nablizko.".to_string());
         s.aura_description = Some("Po 10 s vracis uder kazdemu, kdo te zasahne nablizko.".to_string());
-        s.power_type = 0;
+        s.power_type = 1;
         s.stances = 0;
         s.stances_not = 0;
         s.base_level = 1;
@@ -370,7 +370,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.equipped_item_inventory_type_mask = 0;
         s.spell_family = 4;
         s.spell_family_flags |= 1u64 << 43;
-        s.mana_cost = 8;
+        s.mana_cost = 0;
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
