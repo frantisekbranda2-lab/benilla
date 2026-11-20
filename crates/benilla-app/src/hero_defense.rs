@@ -97,14 +97,16 @@ const MODELS: &[CustomModel] = &[
 //     }
 // }
 
-/// Veze Hero Defense: 90300 + linie * 10 + varianta, 4 rasy po 7 liniich (server `hd_defs.h`).
+/// Veze Hero Defense: 90300 + linie * 10 + varianta, 5 ras po 7 liniich (server `hd_defs.h`).
 const TOWER_FIRST: u32 = 90300;
-const TOWER_LAST: u32 = 90579;
+const TOWER_LAST: u32 = 90649;
+/// Posledni cislo jednotky vyvolane vezi (90890 az 90899, server `hd_defs.h`).
+const TOWER_UNIT_LAST: u32 = 90899;
 
-/// Vez nebo jednotka vyvolana vezi (90300 az 90599: vyvolane 90590 az 90599, server `hd_defs.h`),
-/// podle cisla zaznamu.
+/// Vez nebo jednotka vyvolana vezi (90300 az 90899: veze do 90649, vyvolane 90890 az 90899, mezi
+/// nimi je misto pro dalsi rasy; server `hd_defs.h`), podle cisla zaznamu.
 pub(crate) fn is_tower_unit(entry: u32) -> bool {
-    (TOWER_FIRST..=90599).contains(&entry)
+    (TOWER_FIRST..=TOWER_UNIT_LAST).contains(&entry)
 }
 
 /// Dark Frost Wyrm (server `gen_units.js`, linie 27 varianta 2): stejny model jako Chilling Frost Wyrm.

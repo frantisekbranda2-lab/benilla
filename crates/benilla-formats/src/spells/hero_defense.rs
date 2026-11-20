@@ -3,7 +3,7 @@
 //! Server stavi veze pres existujici NPC kouzla klienta (mireni na zem, bez ceny), ktera si
 //! v `spell_template` prepise na vyvolani veze (`sql/hero_defense/hero_defense_towers.sql`).
 //! Klient by u nich ukazal puvodni nazev a ikonu (Meteor, Blizzard...), proto je tu prepisuje.
-//! Cisla kouzel musi sedet s `HD_LINES` v serveru (`src/scripts/custom/hd_defs.h`): 4 rasy po
+//! Cisla kouzel musi sedet s `HD_LINES` v serveru (`src/scripts/custom/hd_defs.h`): 5 ras po
 //! 7 liniich vezi, kouzlo stavi zakladni vez linie (vylepseni jsou v panelu veze v addonu).
 
 use std::collections::HashMap;
@@ -14,7 +14,7 @@ use super::SpellDisplay;
 const HD_RANGE_ANYWHERE: u32 = 13;
 
 /// (kouzlo, nazev zakladni veze, rasa, ikona); poradi jako `HD_LINES` v serveru.
-const TOWER_SPELLS: [(u32, &str, &str, &str); 28] = [
+const TOWER_SPELLS: [(u32, &str, &str, &str); 35] = [
     (13808, "Puskar", "Human", "INV_Weapon_Rifle_01"),
     (25823, "Knez", "Human", "Spell_Holy_Renew"),
     (8333, "Mechano-tank", "Human", "INV_Misc_Bomb_05"),
@@ -44,6 +44,14 @@ const TOWER_SPELLS: [(u32, &str, &str, &str); 28] = [
     (17678, "Flesh Hurler", "Undead", "Spell_Shadow_PlagueCloud"),
     (13487, "Dark Priest", "Undead", "Spell_Shadow_DarkRitual"),
     (30758, "Young Frost Wyrm", "Undead", "Spell_Frost_FreezingBreath"),
+    // Murlok (changelog 87 v core): murloci a nagy, nosice s mirenim na zem.
+    (747, "Sitar", "Murlok", "Ability_Ensnare"),
+    (28018, "Vestec", "Murlok", "Spell_Nature_HealingWaveLesser"),
+    (28218, "Jedovatec", "Murlok", "Ability_Poisons"),
+    (28535, "Harpunar", "Murlok", "INV_Spear_05"),
+    (27651, "Privolavac prilivu", "Murlok", "Spell_Frost_FrostShock"),
+    (29173, "Naga Myrmidon", "Murlok", "INV_Spear_06"),
+    (26522, "Naga Sirena", "Murlok", "Spell_Frost_FrostArmor02"),
 ];
 
 pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
@@ -106,7 +114,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
 const HD_SPELL_SPEEDS: [(u32, f32); 2] = [(24020, 20.0), (9483, 15.0)];
 
 /// Vizualni aury vezi: (kouzlo, jmeno, ikona, text). Cisla jako `HdVisual` v serveru (`hd_defs.h`).
-const HD_VISUAL_AURAS: [(u32, &str, &str, &str); 13] = [
+const HD_VISUAL_AURAS: [(u32, &str, &str, &str); 14] = [
     (12881, "Jed", "Spell_Nature_CorrosiveBreath", "Jed: poskozeni prirodou v case."),
     (28330, "Horeni", "Spell_Fire_Immolation", "Hori: poskozeni ohnem v case."),
     (23072, "Temna rana", "Spell_Shadow_ShadowWordPain", "Stinove poskozeni v case nebo vyssi prijate poskozeni."),
@@ -114,6 +122,7 @@ const HD_VISUAL_AURAS: [(u32, &str, &str, &str); 13] = [
     (6388, "Zpomaleni", "Spell_Nature_StrengthOfEarthTotem02", "Zpomaleny."),
     (28356, "Nemoc", "Spell_Shadow_CallofBone", "Dostava vic poskozeni."),
     (24152, "Korinky", "Spell_Nature_StrangleVines", "Nemuze se hnout."),
+    (6533, "Sit", "Ability_Ensnare", "V siti: nemuze se hnout, bije jen toho, kdo je na dosah."),
     (10017, "Zamrznuti", "Spell_Frost_FrostNova", "Zamrzly, nemuze se hnout."),
     (18970, "Omraceni", "Spell_Frost_Stun", "Omraceny."),
     (22751, "Bloodlust", "Spell_Nature_BloodLust", "Rychlejsi utok."),
