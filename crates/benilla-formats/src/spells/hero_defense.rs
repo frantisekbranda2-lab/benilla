@@ -4,7 +4,8 @@
 //! v `spell_template` prepise na vyvolani veze (`sql/hero_defense/hero_defense_towers.sql`).
 //! Klient by u nich ukazal puvodni nazev a ikonu (Meteor, Blizzard...), proto je tu prepisuje.
 //! Cisla kouzel musi sedet s `HD_LINES` v serveru (`src/scripts/custom/hd_defs.h`): 5 ras po
-//! 7 liniich vezi, kouzlo stavi zakladni vez linie (vylepseni jsou v panelu veze v addonu).
+//! 7 liniich vezi a jedna linie The Venture Co. (Skreti trhac; jeho dalsi jednotky jsou linie
+//! ostatnich ras). Kouzlo stavi zakladni vez linie (vylepseni jsou v panelu veze v addonu).
 
 use std::collections::HashMap;
 
@@ -14,7 +15,7 @@ use super::SpellDisplay;
 const HD_RANGE_ANYWHERE: u32 = 13;
 
 /// (kouzlo, nazev zakladni veze, rasa, ikona); poradi jako `HD_LINES` v serveru.
-const TOWER_SPELLS: [(u32, &str, &str, &str); 35] = [
+const TOWER_SPELLS: [(u32, &str, &str, &str); 36] = [
     (13808, "Puskar", "Human", "INV_Weapon_Rifle_01"),
     (25823, "Knez", "Human", "Spell_Holy_Renew"),
     (8333, "Mechano-tank", "Human", "INV_Misc_Bomb_05"),
@@ -52,6 +53,8 @@ const TOWER_SPELLS: [(u32, &str, &str, &str); 35] = [
     (27651, "Privolavac prilivu", "Murlok", "Spell_Frost_FrostShock"),
     (29173, "Naga Myrmidon", "Murlok", "INV_Spear_06"),
     (26522, "Naga Sirena", "Murlok", "Spell_Frost_FrostArmor02"),
+    // The Venture Co. (changelog 92 v core): jedina vlastni linie.
+    (10094, "Skreti trhac", "The Venture Co.", "Trade_Engineering"),
 ];
 
 pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
@@ -114,7 +117,7 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
 const HD_SPELL_SPEEDS: [(u32, f32); 2] = [(24020, 20.0), (9483, 15.0)];
 
 /// Vizualni aury vezi: (kouzlo, jmeno, ikona, text). Cisla jako `HdVisual` v serveru (`hd_defs.h`).
-const HD_VISUAL_AURAS: [(u32, &str, &str, &str); 14] = [
+const HD_VISUAL_AURAS: [(u32, &str, &str, &str); 15] = [
     (12881, "Jed", "Spell_Nature_CorrosiveBreath", "Jed: poskozeni prirodou v case."),
     (28330, "Horeni", "Spell_Fire_Immolation", "Hori: poskozeni ohnem v case."),
     (23072, "Temna rana", "Spell_Shadow_ShadowWordPain", "Stinove poskozeni v case nebo vyssi prijate poskozeni."),
@@ -123,6 +126,7 @@ const HD_VISUAL_AURAS: [(u32, &str, &str, &str); 14] = [
     (28356, "Nemoc", "Spell_Shadow_CallofBone", "Dostava vic poskozeni."),
     (24152, "Korinky", "Spell_Nature_StrangleVines", "Nemuze se hnout."),
     (6533, "Sit", "Ability_Ensnare", "V siti: nemuze se hnout, bije jen toho, kdo je na dosah."),
+    (3147, "Krvaceni", "Ability_Gouge", "Krvaci: fyzicke poskozeni v case."),
     (10017, "Zamrznuti", "Spell_Frost_FrostNova", "Zamrzly, nemuze se hnout."),
     (18970, "Omraceni", "Spell_Frost_Stun", "Omraceny."),
     (22751, "Bloodlust", "Spell_Nature_BloodLust", "Rychlejsi utok."),

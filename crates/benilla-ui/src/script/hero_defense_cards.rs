@@ -5,7 +5,7 @@
 //! and records the pick, which the addon reads back and sends to the server:
 //!
 //! - `HeroDefense_CardsBegin(category)` starts a new offer (0 single target .. 3 defense, 4 level up,
-//!   5 build race pick at game start: up to 5 cards, no "pick later");
+//!   5 build race pick at game start: one card per race, up to 8, no "pick later");
 //! - `HeroDefense_CardsAdd(spell, rarity, isNew, rank, maxRank, name, tag, text)` adds a card
 //!   (rarity 0 Common .. 4 Legendary, `text` lines separated by `^`, `>>` drawn as an arrow);
 //! - `HeroDefense_CardsShow()` shows the offer, `HeroDefense_CardsHide()` closes it;
@@ -111,7 +111,8 @@ pub(super) fn install(lua: &Lua) -> mlua::Result<()> {
                 let (spell, rarity, is_new, rank, max_rank, name, tag, body) = args;
                 let card = HdCard {
                     spell: num(lua, spell),
-                    rarity: num(lua, rarity).min(4) as u8,
+                    // 0..4 item qualities; 5 is the extra gold colour of a build race card.
+                    rarity: num(lua, rarity).min(5) as u8,
                     is_new: num(lua, is_new) != 0,
                     rank: num(lua, rank).min(255) as u8,
                     max_rank: num(lua, max_rank).min(20) as u8,
@@ -120,7 +121,7 @@ pub(super) fn install(lua: &Lua) -> mlua::Result<()> {
                     text: text(lua, body),
                 };
                 if let Ok(mut b) = HD_CARDS.lock() {
-                    if b.staging.len() < 5 {
+                    if b.staging.len() < 8 {
                         b.staging.push(card);
                     }
                 }

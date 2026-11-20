@@ -31,9 +31,10 @@ const DIM: Color = Color::srgb(0.6, 0.6, 0.6);
 
 const CARD_W: f32 = 236.0;
 const CARD_H: f32 = 330.0;
-/// Karta rasy stavby je vyssi: pod obrazkem ma strom v bodech.
+/// Karta rasy stavby je vyssi (pod obrazkem ma strom v bodech) a uzsi (sest ras vedle sebe).
 const RACE_CARD_H: f32 = 430.0;
-/// Kategorie nabidky "vyber rasy stavby" (server `HD_CARDS_RACE`): az 5 karet, bez "Vybrat pozdeji".
+const RACE_CARD_W: f32 = 200.0;
+/// Kategorie nabidky "vyber rasy stavby" (server `HD_CARDS_RACE`): karta na rasu, bez "Vybrat pozdeji".
 const RACE_CATEGORY: u8 = 5;
 /// Sekundy mezi dopadem jedne karty a dalsi.
 const DEAL_STAGGER: f32 = 0.09;
@@ -41,14 +42,15 @@ const DEAL_SECS: f32 = 0.38;
 const PICK_SECS: f32 = 0.28;
 
 const RARITY_NAMES: [&str; 5] = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
-const RARITY_COLORS: [Color; 5] = [COMMON, UNCOMMON, RARE, EPIC, LEGENDARY];
+/// Sesta barva (zlata) je jen pro kartu rasy (The Venture Co.), kouzla maji rarity 0 az 4.
+const RARITY_COLORS: [Color; 6] = [COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, GOLD];
 /// Nadpis podle kategorie nabidky: 0 az 3 knizky, 4 vyber za level (`HdSpellbook::Update`), 5 vyber
 /// rasy stavby na zacatku hry (`HdSpellbook::OfferRace`).
 const TITLES: [&str; 6] =
     ["KNIHA UTOKU", "KNIHA ZKAZY", "KNIHA PODPORY", "KNIHA OBRANY", "NOVY LEVEL", "VYBER RASU"];
 
 fn rarity_color(r: u8) -> Color {
-    RARITY_COLORS[usize::from(r.min(4))]
+    RARITY_COLORS[usize::from(r.min(5))]
 }
 
 pub(super) fn plugin(app: &mut App) {
@@ -284,8 +286,8 @@ fn spawn_root(
             let hint = if race { "Za koho budes stavet jednotky" } else { "Vyber si kartu" };
             root.spawn(centered(f, hint, 16.0, Color::srgb(0.85, 0.78, 0.6)));
             root.spawn(Node {
-                // Pet karet ras vedle sebe: uzsi mezery, at se vejdou i na mensi obrazovku.
-                column_gap: Val::Px(if race { 14.0 } else { 22.0 }),
+                // Sest karet ras vedle sebe: uzsi mezery, at se vejdou i na mensi obrazovku.
+                column_gap: Val::Px(if race { 12.0 } else { 22.0 }),
                 margin: UiRect::new(Val::ZERO, Val::ZERO, Val::Px(28.0), Val::Px(16.0)),
                 ..default()
             })
@@ -339,6 +341,7 @@ fn spawn_card(
     let rc = rarity_color(card.rarity);
     // Karta rasy: vyssi, vetsi obrazek, bez jmena rarity a text v bodech zarovnany vlevo.
     let card_h = if race { RACE_CARD_H } else { CARD_H };
+    let card_w = if race { RACE_CARD_W } else { CARD_W };
     let icon = if race { 96.0 } else { 74.0 };
     // Nove kouzlo: jeho popis z klienta nad bonusem ze serveru.
     let mut desc = String::new();
@@ -373,7 +376,7 @@ fn spawn_card(
         Interaction::default(),
         RelativeCursorPosition::default(),
         Node {
-            width: Val::Px(CARD_W),
+            width: Val::Px(card_w),
             height: Val::Px(card_h),
             flex_direction: FlexDirection::Column,
             align_items: AlignItems::Center,
@@ -416,7 +419,7 @@ fn spawn_card(
                     .with_glow(
                         rc.with_alpha(0.45),
                         Vec2::new(0.5, 60.0 / inner_h),
-                        Vec2::new((CARD_W - 4.0) / 2.0 / inner_h, 90.0 / inner_h),
+                        Vec2::new((card_w - 4.0) / 2.0 / inner_h, 90.0 / inner_h),
                     ),
                 ),
             ),
