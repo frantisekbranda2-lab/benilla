@@ -14,6 +14,11 @@ use super::SpellDisplay;
 /// `SpellRange.dbc` radek 13: 0 az 50 000 yd (Eye of Kilrogg).
 const HD_RANGE_ANYWHERE: u32 = 13;
 
+/// Mireni stavebnich kouzel jako v radku serveru (`hero_defense_towers.sql`): `Targets` 0x40 (misto na
+/// zemi) a implicitni cil 8 (vyvolani na misto, kam hrac klikl; jako Spotlight).
+const HD_TARGETS_GROUND: u32 = 0x40;
+const HD_IMPLICIT_GROUND: u32 = 8;
+
 /// (kouzlo, nazev zakladni veze, rasa, ikona); poradi jako `HD_LINES` v serveru.
 const TOWER_SPELLS: [(u32, &str, &str, &str); 36] = [
     (13808, "Puskar", "Human", "INV_Weapon_Rifle_01"),
@@ -71,6 +76,12 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         // Stavba odkudkoli, i z "ocicka" (spectate) daleko od hrdiny: SpellRange 13 "Anywhere".
         // Server ma stejny dosah v hero_defense_towers.sql.
         spell.range_index = HD_RANGE_ANYWHERE;
+        // Mireni na zem jako radek serveru. Server si nosic prepise cely, klient ale miri podle sveho
+        // Spell.dbc: nosic s implicitnim cilem na jednotku (28218 Jedovatec: 25) by chtel vybranou
+        // jednotku a stavbu odmitl s "Invalid target" (changelog 97 v core).
+        spell.targets = HD_TARGETS_GROUND;
+        spell.implicit_target_a1 = HD_IMPLICIT_GROUND;
+        spell.effect_implicit_target_a[0] = HD_IMPLICIT_GROUND;
         // Bez SPELL_ATTR_COOLDOWN_ON_EVENT (0x0200_0000, nosice Field Repair Bot a Goblin Land
         // Mine): jinak je kouzlo nedostupne, dokud stoji prvni postavena vez. Server stejne
         // v hero_defense_towers.sql.
