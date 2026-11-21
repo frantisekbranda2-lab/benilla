@@ -914,7 +914,9 @@ pub(super) fn quality_color(quality: u32) -> &'static str {
         3 => "ff0070dd",
         4 => "ffa335ee",
         5 => "ffff8000",
-        6 => "ffe6cc80",
+        // Hero Defense: quality 6 is the red of the card reroll token (core changelog 120); 1.12
+        // paints Artifact `ffe6cc80`, which no Hero Defense item uses.
+        6 => "ffff2020",
         _ => "ffffffff",
     }
 }

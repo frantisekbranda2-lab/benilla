@@ -5,7 +5,9 @@
 //! druhe, naklani se za mysi, pod mysi se zvednou a pri vyberu vybuchnou. Barva je rarita podle
 //! kvality itemu WoW. Bez efektu pozadi (ztmaveni, zare): hra je za kartami videt beze zmeny.
 //! Pod kartami tlacitko "Vybrat pozdeji" ve stejnem stylu (knizka zustane, addon se to dozvi pres
-//! `HeroDefense_CardLater`). Vzhled oken addonu (`core/addon/HeroDefense/Skin.lua`) z nich vychazi.
+//! `HeroDefense_CardLater`) a vedle nej "Prehodit karty (N)", kdyz ho addon nabidce da
+//! (`HeroDefense_CardsReroll`; klik si addon vezme pres `HeroDefense_CardReroll` a server posle nove
+//! karty, core changelog 120). Vzhled oken addonu (`core/addon/HeroDefense/Skin.lua`) z nich vychazi.
 //!
 //! Nabidku posila server, addon ji preda pres most `benilla_ui::script::hero_defense_cards`
 //! (`HeroDefense_CardsShow`), tady se vykresli, a vyber se zapise zpet do mostu, odkud si ho addon
@@ -58,7 +60,7 @@ pub(super) fn plugin(app: &mut App) {
         .init_resource::<CardsUi>()
         .add_systems(
             Update,
-            (sync_offer, choose_card, later_button, animate_cards, fill_icons).chain(),
+            (sync_offer, choose_card, later_button, reroll_button, animate_cards, fill_icons).chain(),
         )
         .add_systems(Update, answer_icon_requests);
 }
@@ -94,6 +96,8 @@ struct CardsUi {
     /// Vybrana karta a cas od kliknuti (karta vybuchne, pak se vyber zapise).
     pending: Option<(usize, f32)>,
     count: usize,
+    /// "Prehodit karty" uz bylo v teto nabidce stisknuto: dalsi klik nic, dokud neprijdou nove karty.
+    reroll_sent: bool,
 }
 
 /// Pohyb jedne karty: rozdani, naklon k mysi, zvednuti, vybuch pri vyberu.
@@ -111,6 +115,10 @@ struct Card {
 /// Tlacitko "Vybrat pozdeji" pod kartami.
 #[derive(Component)]
 struct LaterButton;
+
+/// Tlacitko "Prehodit karty (N)" vedle nej; `true` = hrdina ma nabiti (jinak je sede a mrtve).
+#[derive(Component)]
+struct RerollButton(bool);
 
 /// Ikona kouzla, doplni se z `SpellIcon.dbc`, jakmile jsou data klienta nactena.
 #[derive(Component)]
@@ -224,15 +232,16 @@ fn sync_offer(
     mut fills: ResMut<Assets<FillMaterial>>,
     me: Query<&crate::net::ObjectStore, With<crate::net::SelfPlayer>>,
 ) {
-    let (serial, open, category, cards) = {
+    let (serial, open, category, cards, rerolls) = {
         let Ok(b) = HD_CARDS.lock() else { return };
         if b.serial == ui.serial {
             return;
         }
-        (b.serial, b.open, b.category, b.cards.clone())
+        (b.serial, b.open, b.category, b.cards.clone(), b.rerolls)
     };
     ui.serial = serial;
     ui.pending = None;
+    ui.reroll_sent = false;
     if let Some(root) = ui.root.take() {
         commands.entity(root).despawn();
     }
@@ -249,6 +258,7 @@ fn sync_offer(
         &font,
         category,
         &cards,
+        rerolls,
         spells.as_deref(),
         me.single().ok(),
         &mut fills,
@@ -256,11 +266,13 @@ fn sync_offer(
     ui.root = Some(root);
 }
 
+#[allow(clippy::too_many_arguments)]
 fn spawn_root(
     commands: &mut Commands,
     f: &Handle<Font>,
     category: u8,
     cards: &[HdCard],
+    rerolls: Option<u32>,
     spells: Option<&crate::ui_action::Spells>,
     me: Option<&crate::net::ObjectStore>,
     fills: &mut Assets<FillMaterial>,
@@ -301,27 +313,24 @@ fn spawn_root(
             if race {
                 return;
             }
-            // Vybrat pozdeji: maly panel jako karta (zlaty ram, tmavy prechod).
-            root.spawn((
-                LaterButton,
-                Button,
-                Interaction::default(),
-                Node {
-                    margin: UiRect::top(Val::Px(14.0)),
-                    padding: UiRect::axes(Val::Px(22.0), Val::Px(7.0)),
-                    border: UiRect::all(Val::Px(2.0)),
-                    border_radius: BorderRadius::ZERO,
-                    ..default()
-                },
-                BorderColor::all(LATER_RING),
-                BackgroundGradient::from(LinearGradient::to_bottom(vec![
-                    ColorStop::percent(Color::srgba(0.13, 0.1, 0.055, 0.95), 0.0),
-                    ColorStop::percent(Color::srgba(0.05, 0.04, 0.025, 0.95), 100.0),
-                ])),
-                BoxShadow::new(Color::srgba(0.0, 0.0, 0.0, 0.5), Val::Px(0.0), Val::Px(3.0), Val::Px(0.0), Val::Px(10.0)),
-            ))
-            .with_children(|b| {
-                b.spawn(centered(f, "Vybrat pozdeji", 15.0, GOLD));
+            // Vybrat pozdeji a Prehodit karty: male panely jako karta (zlaty ram, tmavy prechod),
+            // vedle sebe pod kartami.
+            root.spawn(Node {
+                column_gap: Val::Px(14.0),
+                margin: UiRect::top(Val::Px(14.0)),
+                ..default()
+            })
+            .with_children(|row| {
+                row.spawn((LaterButton, small_button(LATER_RING))).with_children(|b| {
+                    b.spawn(centered(f, "Vybrat pozdeji", 15.0, GOLD));
+                });
+                // Prehodit karty: jen kdyz ho addon nabidce dal; bez nabiti sede a nejde stisknout.
+                let Some(count) = rerolls else { return };
+                let live = count > 0;
+                let (ring, ink) = if live { (LATER_RING, GOLD) } else { (REROLL_RING_OFF, DIM) };
+                row.spawn((RerollButton(live), small_button(ring))).with_children(|b| {
+                    b.spawn(centered(f, format!("Prehodit karty ({count})"), 15.0, ink));
+                });
             });
         })
         .id()
@@ -540,6 +549,28 @@ fn ease_out_back(t: f32) -> f32 {
 
 const LATER_RING: Color = Color::srgba(0.55, 0.45, 0.27, 0.9);
 const LATER_RING_HOVER: Color = Color::srgb(0.85, 0.7, 0.4);
+/// Ram tlacitka "Prehodit karty" bez nabiti.
+const REROLL_RING_OFF: Color = Color::srgba(0.35, 0.33, 0.3, 0.9);
+
+/// Male tlacitko pod kartami ("Vybrat pozdeji", "Prehodit karty"): zlaty ram, tmavy prechod.
+fn small_button(ring: Color) -> impl Bundle {
+    (
+        Button,
+        Interaction::default(),
+        Node {
+            padding: UiRect::axes(Val::Px(22.0), Val::Px(7.0)),
+            border: UiRect::all(Val::Px(2.0)),
+            border_radius: BorderRadius::ZERO,
+            ..default()
+        },
+        BorderColor::all(ring),
+        BackgroundGradient::from(LinearGradient::to_bottom(vec![
+            ColorStop::percent(Color::srgba(0.13, 0.1, 0.055, 0.95), 0.0),
+            ColorStop::percent(Color::srgba(0.05, 0.04, 0.025, 0.95), 100.0),
+        ])),
+        BoxShadow::new(Color::srgba(0.0, 0.0, 0.0, 0.5), Val::Px(0.0), Val::Px(3.0), Val::Px(0.0), Val::Px(10.0)),
+    )
+}
 
 /// "Vybrat pozdeji": okno zavrit, knizka zustane (addon si to vezme z mostu a serveru nic neposle).
 fn later_button(
@@ -573,9 +604,40 @@ fn later_button(
     }
 }
 
+/// "Prehodit karty": okno zustane, addon si klik vezme z mostu (`HeroDefense_CardReroll`) a pozada
+/// server o nove karty; ty prijdou jako nova nabidka a okno se postavi znovu. Jen jednou na nabidku.
+#[allow(clippy::type_complexity)]
+fn reroll_button(
+    mut ui: ResMut<CardsUi>,
+    mut buttons: Query<(&RerollButton, &Interaction, &mut BorderColor), Changed<Interaction>>,
+) {
+    if ui.root.is_none() || ui.pending.is_some() {
+        return;
+    }
+    let mut click = false;
+    for (button, interaction, mut border) in &mut buttons {
+        if !button.0 {
+            continue;
+        }
+        match interaction {
+            Interaction::Pressed => click = true,
+            Interaction::Hovered => *border = BorderColor::all(LATER_RING_HOVER),
+            Interaction::None => *border = BorderColor::all(LATER_RING),
+        }
+    }
+    if !click || ui.reroll_sent {
+        return;
+    }
+    ui.reroll_sent = true;
+    if let Ok(mut b) = HD_CARDS.lock() {
+        b.reroll = true;
+    }
+}
+
 /// Klik na kartu: zacne jeji vybuch, vyber se zapise az po nem.
 fn choose_card(mut ui: ResMut<CardsUi>, cards: Query<(&Card, &Interaction), Changed<Interaction>>) {
-    if ui.root.is_none() || ui.pending.is_some() {
+    // Po "Prehodit karty" se ceka na nove karty: klik by server vzal uz jako vyber z nich.
+    if ui.root.is_none() || ui.pending.is_some() || ui.reroll_sent {
         return;
     }
     let pick = cards

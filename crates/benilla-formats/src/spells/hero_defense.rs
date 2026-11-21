@@ -86,6 +86,13 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         // Mine): jinak je kouzlo nedostupne, dokud stoji prvni postavena vez. Server stejne
         // v hero_defense_towers.sql.
         spell.attributes &= !0x0200_0000;
+        // Bez cooldownu jako radek serveru (hero_defense_towers.sql nuluje recoveryTime,
+        // categoryRecoveryTime i startRecoveryTime). Nosice Throw Proximity Bomb (Grunt, 7 s) a Throw
+        // Syndicate Bomb (Temny mag, 10 s) maji v Spell.dbc vlastni cooldown: klient po prvni stavbe
+        // hlasil "is not ready yet", i kdyz server by druhou jednotku postavil (core backlog 52).
+        spell.recovery_ms = 0;
+        spell.category_recovery_ms = 0;
+        spell.start_recovery_ms = 0;
     }
 
     // Svitek zkusenosti (item 90200 z truhly po vlne): kouzlo-nosic 5202 (MHTest01), server

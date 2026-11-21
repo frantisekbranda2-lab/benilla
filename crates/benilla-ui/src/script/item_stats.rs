@@ -608,7 +608,8 @@ const QUALITY_COLORS: [(u8, u8, u8, &str); 7] = [
     (0x00, 0x70, 0xdd, "|cff0070dd"), // 3 Rare
     (0xa3, 0x35, 0xee, "|cffa335ee"), // 4 Epic
     (0xff, 0x80, 0x00, "|cffff8000"), // 5 Legendary
-    (0xe6, 0xcc, 0x80, "|cffe6cc80"), // 6 Artifact
+    // Hero Defense: red, for the card reroll token (core changelog 120). 1.12 has `e6cc80` here.
+    (0xff, 0x20, 0x20, "|cffff2020"), // 6 Artifact
 ];
 
 /// The client's item-link builder `0x52adb0` as the trade-skill and craft link verbs call it:
@@ -1261,7 +1262,7 @@ mod quality_color_tests {
             (3, "|cff0070dd"),
             (4, "|cffa335ee"),
             (5, "|cffff8000"),
-            (6, "|cffe6cc80"),
+            (6, "|cffff2020"),
         ] {
             assert_eq!(hex(q), want, "quality {q}");
         }

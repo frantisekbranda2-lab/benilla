@@ -10,7 +10,7 @@ pub const HD_ENCHANT_AFFIX: u32 = 40000;
 pub const HD_ENCHANT_TIER: u32 = 39000;
 
 /// (typ, text s `%d` za hodnotu).
-pub const HD_AFFIX_TEXTS: [(u32, &str); 12] = [
+pub const HD_AFFIX_TEXTS: [(u32, &str); 14] = [
     (1, "+%d Stesti"),
     (2, "+%d Zivoty"),
     (3, "+%d Brneni"),
@@ -23,6 +23,8 @@ pub const HD_AFFIX_TEXTS: [(u32, &str); 12] = [
     (10, "+%d % Kriticka sance"),
     (11, "+%d % Kriticke poskozeni"),
     (12, "-%d % Cooldown schopnosti"),
+    (13, "+%d Mana"),
+    (14, "+%d Maximalni rage"),
 ];
 
 /// Nazvy vsech enchantu Hero Defense (hodnoty 1 az 999, urovne 1 az 3) pro tabulku nazvu enchantu.

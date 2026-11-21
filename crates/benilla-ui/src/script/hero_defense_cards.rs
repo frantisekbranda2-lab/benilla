@@ -12,6 +12,11 @@
 //! - `HeroDefense_CardPick()` returns the picked card's index (0-based) once, else nil;
 //! - `HeroDefense_CardLater()` returns true once after the player closed the offer with the app's
 //!   "Vybrat pozdeji" button (the book stays, nothing is sent to the server);
+//! - `HeroDefense_CardsReroll(count)`, between `Begin` and `Show`, gives the offer a "Prehodit
+//!   karty (count)" button (core changelog 120; without the call the offer has none, and a count
+//!   of 0 draws it dimmed and dead);
+//! - `HeroDefense_CardReroll()` returns true once after the player clicked that button: the
+//!   offer stays open, the addon asks the server for new cards (`R`) and shows them when they come;
 //! - `HeroDefense_SpellIcon(spellId)` returns the spell's icon texture path
 //!   (`Interface\Icons\...`, from `SpellIcon.dbc`), or nil until the app has looked it up: the
 //!   first call queues the id, the app answers it on its next frame ([`HD_SPELL_ICONS`]). The
@@ -45,8 +50,13 @@ pub struct HdCardsBridge {
     pub picked: Option<u32>,
     /// The offer was closed with "Vybrat pozdeji", waiting for the addon.
     pub later: bool,
+    /// Reroll charges the offer shows on its "Prehodit karty" button; `None` draws no button.
+    pub rerolls: Option<u32>,
+    /// The reroll button was clicked, waiting for the addon.
+    pub reroll: bool,
     staging: Vec<HdCard>,
     staging_category: u8,
+    staging_rerolls: Option<u32>,
 }
 
 impl HdCardsBridge {
@@ -58,8 +68,11 @@ impl HdCardsBridge {
             cards: Vec::new(),
             picked: None,
             later: false,
+            rerolls: None,
+            reroll: false,
             staging: Vec::new(),
             staging_category: 0,
+            staging_rerolls: None,
         }
     }
 }
@@ -89,7 +102,7 @@ fn text(lua: &Lua, v: Value) -> String {
         .unwrap_or_default()
 }
 
-/// Register the five globals.
+/// Register the globals.
 pub(super) fn install(lua: &Lua) -> mlua::Result<()> {
     let g = lua.globals();
 
@@ -99,8 +112,30 @@ pub(super) fn install(lua: &Lua) -> mlua::Result<()> {
             if let Ok(mut b) = HD_CARDS.lock() {
                 b.staging.clear();
                 b.staging_category = num(lua, category).min(255) as u8;
+                b.staging_rerolls = None;
             }
             Ok(())
+        })?,
+    )?;
+
+    g.set(
+        "HeroDefense_CardsReroll",
+        lua.create_function(|lua, count: Value| {
+            if let Ok(mut b) = HD_CARDS.lock() {
+                b.staging_rerolls = Some(num(lua, count));
+            }
+            Ok(())
+        })?,
+    )?;
+
+    g.set(
+        "HeroDefense_CardReroll",
+        lua.create_function(|_, ()| {
+            let reroll = HD_CARDS
+                .lock()
+                .ok()
+                .is_some_and(|mut b| std::mem::take(&mut b.reroll));
+            Ok(reroll)
         })?,
     )?;
 
@@ -136,9 +171,11 @@ pub(super) fn install(lua: &Lua) -> mlua::Result<()> {
             if let Ok(mut b) = HD_CARDS.lock() {
                 b.cards = std::mem::take(&mut b.staging);
                 b.category = b.staging_category;
+                b.rerolls = b.staging_rerolls.take();
                 b.open = !b.cards.is_empty();
                 b.picked = None;
                 b.later = false;
+                b.reroll = false;
                 b.serial = b.serial.wrapping_add(1);
             }
             Ok(())

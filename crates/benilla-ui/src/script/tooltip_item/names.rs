@@ -12,7 +12,8 @@ pub(super) const QUALITY_RGB: [[f32; 3]; 7] = [
     [0.0, 0.439, 0.867],   // 3 Rare      0070dd
     [0.639, 0.208, 0.933], // 4 Epic      a335ee
     [1.0, 0.502, 0.0],     // 5 Legendary ff8000
-    [0.902, 0.8, 0.502],   // 6 Artifact  e6cc80
+    // Hero Defense: red (ff2020) for the card reroll token, core changelog 120; 1.12 has e6cc80.
+    [1.0, 0.125, 0.125],   // 6 Artifact  ff2020
 ];
 
 // The tooltip colours: white `0xc0cf60` ffffffff, red `0xc0d390` ffff2020, green `0xc0d3ac`
