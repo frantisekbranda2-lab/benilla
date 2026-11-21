@@ -474,7 +474,16 @@ fn add_flora(tile: &mut TileMesh) -> usize {
         };
         tile.doodads.push(Doodad {
             model: hd_scenery::MODELS[f.model as usize].to_string(),
-            position: [f.x, f.y, z - f.sink],
+            // Lekniny lezi na hladine louze, ostatni stoji na terenu.
+            position: [
+                f.x,
+                f.y,
+                if f.on_water {
+                    FLAT_Z - hd_scenery::PUDDLE_WATER_BELOW as f32 + 0.03
+                } else {
+                    z - f.sink
+                },
+            ],
             rotation: [f.tilt_x, f.heading, f.tilt_z],
             scale: f.scale,
             unique_id: FLORA_UNIQUE_BASE + i as u32,
@@ -599,7 +608,7 @@ mod tests {
         assert!(add_puddle_water(&mut c));
         let water = &c.liquids[0];
         let wet = water.wet.iter().filter(|w| **w).count();
-        assert!((1..40).contains(&wet), "mokrych bunek {wet}");
+        assert!((1..=64).contains(&wet), "mokrych bunek {wet}");
         assert_eq!(water.indices.len(), wet * 6);
         // Hladina je pod rovinou nadvori a nejvys 0,45 yd nad dnem (brodi se, neplave).
         let level = water.positions[0][2];

@@ -133,7 +133,7 @@ pub(crate) fn on_flat_ground(x: f64, y: f64) -> bool {
     d <= 0.0 || (d <= GRID_APRON && in_grid_apron(x, y))
 }
 
-fn court_radius(x: f64, y: f64) -> f64 {
+pub(crate) fn court_radius(x: f64, y: f64) -> f64 {
     COURT_R + 8.0 * (vnoise(x / 23.0, y / 23.0, 41) - 0.5)
 }
 
