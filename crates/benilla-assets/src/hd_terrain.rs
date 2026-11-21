@@ -12,15 +12,15 @@
 //! `core/tools/terrain` (Python); sum je deterministicky, pocita se v `f64` kvuli shode s nim.
 
 /// Hrad (mapa 1, Kalimdor): poloha a natoceni jako na serveru, viz `hd_zone::CENTER`.
-const CX: f64 = -6180.0;
-const CY: f64 = -3710.0;
-const CO: f64 = 4.7124;
-const SLOTS: i32 = 9;
+pub(crate) const CX: f64 = -6180.0;
+pub(crate) const CY: f64 = -3710.0;
+pub(crate) const CO: f64 = 4.7124;
+pub(crate) const SLOTS: i32 = 9;
 
 // Rozmery aren, stejne jako na serveru (hd_defs.h).
-const FINAL_PATH: f64 = 100.0;
-const ARENA_HALF: f64 = 30.0; // 15 poli po 4 yd
-const ARENA_FAR: f64 = 200.0; // FINAL_PATH + 25 poli po 4 yd
+pub(crate) const FINAL_PATH: f64 = 100.0;
+pub(crate) const ARENA_HALF: f64 = 30.0; // 15 poli po 4 yd
+pub(crate) const ARENA_FAR: f64 = 200.0; // FINAL_PATH + 25 poli po 4 yd
 
 /// O kolik je plosina areny vys nez okoli hradu (yd). Server: `HD_PLATEAU_HEIGHT`.
 pub(crate) const PLATEAU_H: f64 = 5.0;
@@ -29,32 +29,32 @@ const MARGIN: f64 = 3.0;
 /// Plosina konci aspon tolik pred osou mezi sousednimi arenami (tam stoji skala).
 const GAP_HALF: f64 = 3.0;
 /// Rampa: polovina sirky a delka. Server: `HD_RAMP_HALF`, `HD_RAMP_LENGTH`.
-const RAMP_HALF: f64 = 6.0;
+pub(crate) const RAMP_HALF: f64 = 6.0;
 const RAMP_LEN: f64 = 18.0;
 /// Volne nadvori kolem hradu (stredni polomer) a polovina sirky cesty bosse.
-const COURT_R: f64 = 80.0;
-const LANE_HALF: f64 = 18.0;
+pub(crate) const COURT_R: f64 = 80.0;
+pub(crate) const LANE_HALF: f64 = 18.0;
 /// Dal od hradu se teren nemeni.
 pub(crate) const OUTER_MAX: f64 = 252.0;
 
-const P_NEAR: f64 = FINAL_PATH - MARGIN;
+pub(crate) const P_NEAR: f64 = FINAL_PATH - MARGIN;
 const P_FAR: f64 = ARENA_FAR + MARGIN;
 const P_HALF: f64 = ARENA_HALF + MARGIN;
 const RAMP_TOP: f64 = P_NEAR;
-const RAMP_BOT: f64 = P_NEAR - RAMP_LEN;
+pub(crate) const RAMP_BOT: f64 = P_NEAR - RAMP_LEN;
 
-fn step() -> f64 {
+pub(crate) fn step() -> f64 {
     std::f64::consts::TAU / SLOTS as f64
 }
 
-fn smooth(t: f64) -> f64 {
+pub(crate) fn smooth(t: f64) -> f64 {
     let t = t.clamp(0.0, 1.0);
     t * t * (3.0 - 2.0 * t)
 }
 
 // ---- sum -------------------------------------------------------------------------------------
 
-fn hash2(ix: i64, iy: i64, seed: i64) -> f64 {
+pub(crate) fn hash2(ix: i64, iy: i64, seed: i64) -> f64 {
     let mut h = (ix
         .wrapping_mul(374_761_393)
         .wrapping_add(iy.wrapping_mul(668_265_263))
@@ -64,7 +64,7 @@ fn hash2(ix: i64, iy: i64, seed: i64) -> f64 {
     f64::from(h) / 4_294_967_295.0
 }
 
-fn vnoise(x: f64, y: f64, seed: i64) -> f64 {
+pub(crate) fn vnoise(x: f64, y: f64, seed: i64) -> f64 {
     let (ix, iy) = (x.floor(), y.floor());
     let (fx, fy) = (x - ix, y - iy);
     let (ix, iy) = (ix as i64, iy as i64);
@@ -77,7 +77,7 @@ fn vnoise(x: f64, y: f64, seed: i64) -> f64 {
     top + ((c + (d - c) * ux) - top) * uy
 }
 
-fn fbm(mut x: f64, mut y: f64, seed: i64) -> f64 {
+pub(crate) fn fbm(mut x: f64, mut y: f64, seed: i64) -> f64 {
     let (mut s, mut amp, mut tot) = (0.0, 1.0, 0.0);
     for o in 0..3 {
         s += vnoise(x, y, seed + o * 17) * amp;
@@ -92,7 +92,7 @@ fn fbm(mut x: f64, mut y: f64, seed: i64) -> f64 {
 // ---- geometrie -------------------------------------------------------------------------------
 
 /// Bod v mistnich souradnicich pozice `slot` v kruhu: (od hradu, doleva).
-fn local(x: f64, y: f64, slot: i32) -> (f64, f64) {
+pub(crate) fn local(x: f64, y: f64, slot: i32) -> (f64, f64) {
     let o = CO + f64::from(slot) * step();
     let (dx, dy) = (x - CX, y - CY);
     (dx * o.cos() + dy * o.sin(), -dx * o.sin() + dy * o.cos())
@@ -112,7 +112,7 @@ fn court_radius(x: f64, y: f64) -> f64 {
     COURT_R + 8.0 * (vnoise(x / 23.0, y / 23.0, 41) - 0.5)
 }
 
-fn outer_radius(x: f64, y: f64) -> f64 {
+pub(crate) fn outer_radius(x: f64, y: f64) -> f64 {
     237.0 + 22.0 * (fbm(x / 60.0, y / 60.0, 51) - 0.5) + 6.0 * (vnoise(x / 13.0, y / 13.0, 7) - 0.5)
 }
 
@@ -165,11 +165,19 @@ pub(crate) fn walk_height(x: f64, y: f64) -> (f64, f64) {
 
 /// Posun terenu nad srovnanou planí v bode (WoW x, y).
 pub(crate) fn height(x: f64, y: f64) -> f64 {
+    if (x - CX).hypot(y - CY) > OUTER_MAX {
+        return 0.0;
+    }
+    let (d, base) = walk_height(x, y);
+    height_with(x, y, d, base)
+}
+
+/// `height` pro bod, jehoz `walk_height` (`d`, `base`) uz volajici ma.
+pub(crate) fn height_with(x: f64, y: f64, d: f64, base: f64) -> f64 {
     let r = (x - CX).hypot(y - CY);
     if r > OUTER_MAX {
         return 0.0;
     }
-    let (d, base) = walk_height(x, y);
     if d <= 0.0 {
         return base;
     }
@@ -184,19 +192,26 @@ pub(crate) fn height(x: f64, y: f64) -> f64 {
     h.max(0.0)
 }
 
-/// Jak moc je bod skala (0 pochozi plocha, 1 skala), pro texturu.
+/// Jak moc je bod skala (0 pochozi plocha, 1 skala), pro texturu. Klient ji pocita pres
+/// `rockiness_with` (`hd_scenery::Site`); tahle podoba overuje shodu s prototypem.
+#[cfg(test)]
 pub(crate) fn rockiness(x: f64, y: f64) -> f64 {
-    let (_, mut base) = walk_height(x, y);
-    let r = (x - CX).hypot(y - CY);
-    if r > outer_radius(x, y) - 4.0 {
-        base = 0.0; // pod vnejsim srazem je plan ve vysce hradu
-    }
-    smooth((height(x, y) - base - 0.6) / 2.0)
+    let (_, base) = walk_height(x, y);
+    rockiness_with(
+        height(x, y),
+        base,
+        (x - CX).hypot(y - CY),
+        outer_radius(x, y),
+    )
 }
 
-/// Kde na skale prekryt hlavni texturu svetlejsimi pruhy (0 az 1).
-pub(crate) fn highlight(x: f64, y: f64) -> f64 {
-    smooth((fbm(x / 9.0, y / 9.0, 61) - 0.45) / 0.2) * 0.8
+/// `rockiness` z hodnot, ktere uz volajici ma: vyska terenu `h`, vyska pochozi plochy `base`,
+/// vzdalenost od hradu `r` a vnejsi okraj skal `edge`.
+pub(crate) fn rockiness_with(h: f64, mut base: f64, r: f64, edge: f64) -> f64 {
+    if r > edge - 4.0 {
+        base = 0.0; // pod vnejsim srazem je plan ve vysce hradu
+    }
+    smooth((h - base - 0.6) / 2.0)
 }
 
 /// Vzdalenost bodu od hradu (yd).

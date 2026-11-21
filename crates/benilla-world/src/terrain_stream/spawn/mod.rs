@@ -237,7 +237,7 @@ pub(super) fn spawn_loaded_placements(
                     }
                     // The collision hull, welded into the owner tile's batch: the body's alone, as
                     // the mouse pick tests the drawn batches (`interact::DoodadOccluders`).
-                    if let Some((verts, tris)) = (!doodad_bodies_disabled())
+                    if let Some((verts, tris)) = (p.solid && !doodad_bodies_disabled())
                         .then(|| placement_collider_data(m.collision.as_ref(), &p.transform))
                         .flatten()
                     {
@@ -942,6 +942,7 @@ mod retire_tests {
             name_set: 0,
             doodads,
             portal_instance: None,
+            solid: true,
             refs: 1,
             owner: (0, 0),
         }

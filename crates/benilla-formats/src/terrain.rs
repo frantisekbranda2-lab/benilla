@@ -250,6 +250,9 @@ pub struct Doodad {
     /// MDDF uniqueId, shared by every tile a doodad straddles; the reference dedups by it
     /// (`0x694bc0`).
     pub unique_id: u32,
+    /// The doodad spawns no collision hull even when its model has one: Hero Defense scenery
+    /// (`benilla_assets::hd_zone`), which must not block a mover. Never set by a map file.
+    pub no_collision: bool,
 }
 
 /// A placed WMO (building): which model, and where, in raw WoW world coords.
@@ -481,6 +484,7 @@ pub fn adt_to_tile_mesh(adt_bytes: &[u8]) -> Result<TileMesh> {
                 rotation: d.rotation,
                 scale: d.scale as f32 / 1024.0,
                 unique_id: d.unique_id,
+                no_collision: false,
             })
         })
         .collect();

@@ -287,6 +287,9 @@ struct Placement {
     /// The tile owning an M2 doodad's hull weld and merged blobs, first the registering tile;
     /// WMOs never read it.
     owner: (i32, i32),
+    /// Whether an M2 doodad spawns its collision hull; false for `Doodad::no_collision` (Hero
+    /// Defense scenery). WMOs never read it.
+    solid: bool,
 }
 
 /// How much of the world wanted around the view focus is there, read by the loading bar and by
@@ -1262,6 +1265,7 @@ fn register_doodad(
             name_set: 0,
             doodads: Vec::new(),
             portal_instance: None,
+            solid: !d.no_collision,
             refs: 1,
             owner: tile,
         },
@@ -1291,6 +1295,7 @@ fn register_wmo(placements: &mut Placements, asset_server: &AssetServer, w: &Wmo
             name_set: w.name_set,
             doodads: Vec::new(),
             portal_instance: None,
+            solid: true,
             refs: 1,
             owner: (0, 0), // unread for WMOs: their prop hulls weld per placement
         },
@@ -1739,6 +1744,7 @@ mod straddler_tests {
             name_set: 0,
             doodads: Vec::new(),
             portal_instance: None,
+            solid: true,
             refs: 1,
             owner,
         }

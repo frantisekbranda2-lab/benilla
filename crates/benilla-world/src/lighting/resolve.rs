@@ -274,6 +274,10 @@ pub(super) fn update_time_lighting(
     let (fac1, fac2) = submerged
         .ocean_depth_factors(eye_liquid.eye_z())
         .unwrap_or((1.0, 1.0));
+    // Hero Defense: its courtyard puddles take a fixed tint, as the salt flats' own river rows are
+    // a milky white (`benilla_assets::hd_zone`).
+    let (water_river, water_river_alpha) = benilla_assets::hd_puddle_tint(map, wow_pos)
+        .unwrap_or((atmo.water_river, atmo.water_river_alpha));
     let resolved = WowLighting {
         ambient: hsv_value_scale(atmo.ambient, fac1),
         diffuse: hsv_value_scale(atmo.sun_diffuse, fac2),
@@ -289,9 +293,9 @@ pub(super) fn update_time_lighting(
         sky: atmo.sky,
         // Area-blended like every band (`0x6d30e0` merges all 18 colour rows): a single-sphere pick
         // snaps the tint where a sphere's weight reaches zero.
-        water_river: atmo.water_river,
+        water_river,
         water_ocean: atmo.water_ocean,
-        water_river_alpha: atmo.water_river_alpha,
+        water_river_alpha,
         water_ocean_alpha: atmo.water_ocean_alpha,
         glow: quantize_glow(atmo.glow),
         sky_warp: daynight::sky_warp(minute_f, atmo.highlight_sky),

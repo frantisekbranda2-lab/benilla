@@ -731,6 +731,7 @@ mod tests {
             name_set: 0,
             doodads: Vec::new(),
             portal_instance,
+            solid: true,
             refs: 1,
             owner: (0, 0),
         }

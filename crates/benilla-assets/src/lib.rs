@@ -36,8 +36,10 @@ pub use model::{
 };
 mod adt;
 mod hd_rocks;
+mod hd_scenery;
 mod hd_terrain;
 mod hd_zone;
+pub use hd_zone::puddle_tint as hd_puddle_tint;
 mod terrain;
 mod wdt;
 pub use adt::{chunk_to_mesh, chunks_to_mesh, AdtLoader, AdtTile, ChunkShading};
