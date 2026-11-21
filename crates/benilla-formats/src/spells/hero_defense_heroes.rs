@@ -539,8 +539,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&13813) {
         s.name = "Explosive Trap".to_string();
         s.rank = None;
-        s.description = Some("Vybusna past pod nejblizsiho nepritele do 30 yd: vybuch za 30 az 40 ohniveho poskozeni vsem do 6 yd a horici zem na 6 s, ktera kazdou sekundu pali za 7 (20 % vybuchu). Sili s DPS zbrane ({dps}).".to_string());
-        s.aura_description = Some("Vybusna past pod nejblizsiho nepritele do 30 yd: vybuch za 30 az 40 ohniveho poskozeni vsem do 6 yd a horici zem na 6 s, ktera kazdou sekundu pali za 7 (20 % vybuchu). Sili s DPS zbrane ({dps}).".to_string());
+        s.description = Some("Vybusna past pod nejblizsiho nepritele do 30 yd: vybuch za 24 az 32 ohniveho poskozeni vsem do 6 yd a horici zem na 6 s, ktera kazdou sekundu pali za 6 (20 % vybuchu). Sili se silou utoku z predmetu, DPS zbrane ji nesili.".to_string());
+        s.aura_description = Some("Vybusna past pod nejblizsiho nepritele do 30 yd: vybuch za 24 az 32 ohniveho poskozeni vsem do 6 yd a horici zem na 6 s, ktera kazdou sekundu pali za 6 (20 % vybuchu). Sili se silou utoku z predmetu, DPS zbrane ji nesili.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -574,8 +574,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.effect_dice_per_level = [0; 3];
         s.duration_index = 32;
         set_radius(s, 29);
-        set_effect(s, 0, 29, 11);
-        set_effect(s, 1, 6, 1);
+        set_effect(s, 0, 23, 9);
+        set_effect(s, 1, 5, 1);
         s.effect_implicit_target_a[0] = 16;
     }
     // Frost Trap (aoe)
