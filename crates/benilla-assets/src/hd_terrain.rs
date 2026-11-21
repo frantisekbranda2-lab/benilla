@@ -36,6 +36,16 @@ pub(crate) const COURT_R: f64 = 80.0;
 pub(crate) const LANE_HALF: f64 = 18.0;
 /// Dal od hradu se teren nemeni.
 pub(crate) const OUTER_MAX: f64 = 252.0;
+/// Sraz: hned za hranou pochozi plochy stoji skala aspon o tolik yardu nad ni (`CLIFF_MIN` az
+/// `CLIFF_MIN + CLIFF_VAR`). Na siti terenu (vrcholy po 4,17 yd a stredy bunek) to dava stenu nad
+/// 73 stupnu, kterou postava nevyjde ani nevyskace; mirny nabeh sel preskakat (21. 11. 2026),
+/// hlida to `hd_mesh_check`.
+const CLIFF_MIN: f64 = 10.0;
+const CLIFF_VAR: f64 = 3.0;
+/// Rovny lem kolem mrizky areny (yd): trojuhelnik site, ktery do mrizky zasahuje, ma vrcholy az
+/// 4,17 yd od ni (delka hrany bunky). Vsechny musi lezet ve vysce plosiny, jinak se krajni pole
+/// mrizky zvedaji ke skale. Plosina sama ma okraj jen `MARGIN` = 3 yd, proto lem navic.
+const GRID_APRON: f64 = 4.2;
 
 pub(crate) const P_NEAR: f64 = FINAL_PATH - MARGIN;
 const P_FAR: f64 = ARENA_FAR + MARGIN;
@@ -106,6 +116,21 @@ fn rect_dist(f: f64, l: f64, f0: f64, f1: f64, half: f64) -> f64 {
 
 fn ramp_h(f: f64) -> f64 {
     PLATEAU_H * smooth((f - RAMP_BOT) / RAMP_LEN)
+}
+
+/// Bod lezi v rovnem lemu kolem mrizky nektere areny.
+fn in_grid_apron(x: f64, y: f64) -> bool {
+    (1..SLOTS).any(|k| {
+        let (f, l) = local(x, y, k);
+        rect_dist(f, l, FINAL_PATH, ARENA_FAR, ARENA_HALF) <= GRID_APRON
+    })
+}
+
+/// Bod lezi na rovne zemi: na pochozi plose nebo v lemu kolem mrizky.
+#[cfg(test)]
+pub(crate) fn on_flat_ground(x: f64, y: f64) -> bool {
+    let (d, _) = walk_height(x, y);
+    d <= 0.0 || (d <= GRID_APRON && in_grid_apron(x, y))
 }
 
 fn court_radius(x: f64, y: f64) -> f64 {
@@ -181,15 +206,19 @@ pub(crate) fn height_with(x: f64, y: f64, d: f64, base: f64) -> f64 {
     if d <= 0.0 {
         return base;
     }
-    // Strmost steny se meni podle sumu, at sraz neni jako podle pravitka.
-    let wall = 2.6 + 1.8 * vnoise(x / 9.0, y / 9.0, 5);
-    let mut h = base + (rock_top(x, y, d) - base) * smooth(d / wall);
-    // Vnejsi okraj skal: strmy sraz dolu k plani.
-    let edge = outer_radius(x, y);
-    if r > edge - 4.0 {
-        h *= 1.0 - smooth((r - (edge - 4.0)) / 4.0);
+    // Lem kolem mrizky je ve vysce plosiny (bod v lemu je od plosiny nejvys `GRID_APRON`).
+    if d <= GRID_APRON && in_grid_apron(x, y) {
+        return PLATEAU_H;
     }
-    h.max(0.0)
+    // Vnejsi okraj skal: kolmy sraz dolu k plani.
+    if r > outer_radius(x, y) {
+        return 0.0;
+    }
+    // Nad srazem skala dal stoupa k vrcholum; jak rychle, se meni podle sumu.
+    let noise = vnoise(x / 9.0, y / 9.0, 5);
+    let wall = 2.6 + 1.8 * noise;
+    let h = base + (rock_top(x, y, d) - base) * smooth(d / wall);
+    h.max(base + CLIFF_MIN + CLIFF_VAR * noise)
 }
 
 /// Jak moc je bod skala (0 pochozi plocha, 1 skala), pro texturu. Klient ji pocita pres

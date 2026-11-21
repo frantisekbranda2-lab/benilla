@@ -35,6 +35,8 @@ pub use model::{
     ATTRIBUTE_WOW_JOINT_WEIGHT, ATTRIBUTE_WOW_MERGED_SLOT,
 };
 mod adt;
+#[cfg(test)]
+mod hd_mesh_check;
 mod hd_rocks;
 mod hd_scenery;
 mod hd_terrain;
