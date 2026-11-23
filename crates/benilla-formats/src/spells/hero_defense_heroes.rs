@@ -1506,7 +1506,386 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.attributes_ex = 16384;
         s.channel_interrupt_flags = 0;
     }
+    // Quick Strike (single)
+    if let Some(s) = spells.get_mut(&17364) {
+        s.name = "Quick Strike".to_string();
+        s.rank = None;
+        s.description = Some("Uder obema sekerami: {dmgw:2} poskozeni sekerou v hlavni ruce a k tomu 50 % poskozeni sekery ve vedlejsi ruce. Spusti ocarovani obou seker. Jen se sekerou do jedne ruky v hlavni ruce.".to_string());
+        s.aura_description = Some("Uder obema sekerami: {dmgw:2} poskozeni sekerou v hlavni ruce a k tomu 50 % poskozeni sekery ve vedlejsi ruce. Spusti ocarovani obou seker. Jen se sekerou do jedne ruky v hlavni ruce.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 32;
+        s.mana_cost = 3;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 1500;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.range_index = 2;
+        set_effect(s, 0, 1, 1);
+        s.effects[1] = 0;
+        s.effect_apply_aura[1] = 0;
+        s.equipped_item_class = 2;
+        s.equipped_item_subclass_mask = 1;
+    }
+    // Fiery Weapon (support)
+    if let Some(s) = spells.get_mut(&8024) {
+        s.name = "Fiery Weapon".to_string();
+        s.rank = None;
+        s.description = Some("Ocaruje jednu tvou sekeru ohnem. Ocarovat jde jen sekeru do jedne ruky, hul ne. Zasah tou sekerou da 5 ohniveho poskozeni navic a zapali nepritele: 40 % zasahu behem 5 s. Samotne je na sekere v hlavni ruce. Spolu s Windfury Weapon je Windfury na hlavni a Fiery na vedlejsi ruce.".to_string());
+        s.aura_description = Some("Ocaruje jednu tvou sekeru ohnem. Ocarovat jde jen sekeru do jedne ruky, hul ne. Zasah tou sekerou da 5 ohniveho poskozeni navic a zapali nepritele: 40 % zasahu behem 5 s. Samotne je na sekere v hlavni ruce. Spolu s Windfury Weapon je Windfury na hlavni a Fiery na vedlejsi ruce.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 33;
+        s.mana_cost = 5;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 10000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.duration_index = 5;
+        set_effect(s, 0, 4, 1);
+        s.effects[0] = 6;
+        s.effect_apply_aura[0] = 4;
+        s.effect_implicit_target_a[0] = 1;
+        s.attributes = 327680;
+        s.equipped_item_class = 2;
+        s.equipped_item_subclass_mask = 1;
+    }
+    // Windfury Weapon (aoe)
+    if let Some(s) = spells.get_mut(&8232) {
+        s.name = "Windfury Weapon".to_string();
+        s.rank = None;
+        s.description = Some("Ocaruje jednu tvou sekeru vetrem. Ocarovat jde jen sekeru do jedne ruky, hul ne. Zasah tou sekerou ma 30 % sanci na vir: az 5 nepratel do 5 yd dostane poskozeni uderu + 10. Vzdy je na sekere v hlavni ruce. Spolu s Fiery Weapon je Fiery na vedlejsi ruce.".to_string());
+        s.aura_description = Some("Ocaruje jednu tvou sekeru vetrem. Ocarovat jde jen sekeru do jedne ruky, hul ne. Zasah tou sekerou ma 30 % sanci na vir: az 5 nepratel do 5 yd dostane poskozeni uderu + 10. Vzdy je na sekere v hlavni ruce. Spolu s Fiery Weapon je Fiery na vedlejsi ruce.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 34;
+        s.mana_cost = 5;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 10000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.duration_index = 5;
+        set_radius(s, 8);
+        set_effect(s, 0, 9, 1);
+        s.effects[0] = 6;
+        s.effect_apply_aura[0] = 4;
+        s.effect_implicit_target_a[0] = 1;
+        s.attributes = 327680;
+        s.equipped_item_class = 2;
+        s.equipped_item_subclass_mask = 1;
+    }
+    // Ice Shock (single)
+    if let Some(s) = spells.get_mut(&8056) {
+        s.name = "Ice Shock".to_string();
+        s.rank = None;
+        s.description = Some("Ledovy sok za {dmg:28-34} poskozeni, zpomali pohyb nepritele o 30 % na 3 s.".to_string());
+        s.aura_description = Some("Ledovy sok za {dmg:28-34} poskozeni, zpomali pohyb nepritele o 30 % na 3 s.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 35;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 4000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.range_index = 3;
+        s.duration_index = 27;
+        set_effect(s, 1, 27, 7);
+        s.effect_apply_aura[0] = 4;
+    }
+    // Earth Shock (single)
+    if let Some(s) = spells.get_mut(&8042) {
+        s.name = "Earth Shock".to_string();
+        s.rank = None;
+        s.description = Some("Zemni sok za {dmg:32-38} poskozeni, nepritel utoci o 30 % pomaleji 3 s.".to_string());
+        s.aura_description = Some("Zemni sok za {dmg:32-38} poskozeni, nepritel utoci o 30 % pomaleji 3 s.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 36;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 4000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.range_index = 3;
+        s.duration_index = 27;
+        set_effect(s, 0, 31, 7);
+        s.effects[1] = 6;
+        s.effect_apply_aura[1] = 4;
+        s.effect_implicit_target_a[1] = 6;
+    }
+    // Healing Wave (support)
+    if let Some(s) = spells.get_mut(&331) {
+        s.name = "Healing Wave".to_string();
+        s.rank = None;
+        s.description = Some("Vlna leceni vyleci 3 nejvic zranene jednotky nebo hrdiny do 30 yd, kazdemu 50 zivotu. Sili se silou kouzel a s levelem.".to_string());
+        s.aura_description = Some("Vlna leceni vyleci 3 nejvic zranene jednotky nebo hrdiny do 30 yd, kazdemu 50 zivotu. Sili se silou kouzel a s levelem.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 37;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 5000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        set_radius(s, 10);
+        set_effect(s, 0, 49, 1);
+        s.effects[0] = 3;
+        s.effect_implicit_target_a[0] = 1;
+    }
+    // Totem of Power (support)
+    if let Some(s) = spells.get_mut(&8075) {
+        s.name = "Totem of Power".to_string();
+        s.rank = None;
+        s.description = Some("Totem vedle tebe stoji 30 s: tve jednotky a hrdinove do 20 yd davaji o 15 % vic poskozeni.".to_string());
+        s.aura_description = Some("Totem vedle tebe stoji 30 s: tve jednotky a hrdinove do 20 yd davaji o 15 % vic poskozeni.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 38;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 30000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.duration_index = 9;
+        set_radius(s, 9);
+        set_effect(s, 0, 14, 1);
+        s.effects[0] = 3;
+        s.effect_implicit_target_a[0] = 1;
+    }
+    // Windfury Totem (support)
+    if let Some(s) = spells.get_mut(&8512) {
+        s.name = "Windfury Totem".to_string();
+        s.rank = None;
+        s.description = Some("Totem vedle tebe stoji 30 s: tve jednotky a hrdinove do 20 yd utoci o 15 % rychleji a maji o 15 % kratsi cooldown schopnosti.".to_string());
+        s.aura_description = Some("Totem vedle tebe stoji 30 s: tve jednotky a hrdinove do 20 yd utoci o 15 % rychleji a maji o 15 % kratsi cooldown schopnosti.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 39;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 30000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.duration_index = 9;
+        set_radius(s, 9);
+        set_effect(s, 0, 14, 1);
+        s.effects[0] = 3;
+        s.effect_implicit_target_a[0] = 1;
+    }
+    // Lightning Shield (defense)
+    if let Some(s) = spells.get_mut(&324) {
+        s.name = "Lightning Shield".to_string();
+        s.rank = None;
+        s.description = Some("Stit z blesku na 15 s pro jednotku nebo hrdinu, na ktereho utoci nejvic nepratel (do 30 yd). Kdyz na nikoho nikdo neutoci, dostane ho tva jednotka s nejvic zivoty. V boss kole ho dostane spoluhrac s nejvic zivoty. Kazdy utok na nej vrati utocnikovi 25 poskozeni, nejvys jednou za sekundu. Sili se silou kouzel.".to_string());
+        s.aura_description = Some("Stit z blesku na 15 s pro jednotku nebo hrdinu, na ktereho utoci nejvic nepratel (do 30 yd). Kdyz na nikoho nikdo neutoci, dostane ho tva jednotka s nejvic zivoty. V boss kole ho dostane spoluhrac s nejvic zivoty. Kazdy utok na nej vrati utocnikovi 25 poskozeni, nejvys jednou za sekundu. Sili se silou kouzel.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 40;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 10000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.duration_index = 8;
+        set_radius(s, 10);
+        set_effect(s, 0, 24, 1);
+        s.effects[0] = 3;
+        s.effect_apply_aura[0] = 0;
+    }
+    // Earth Shield (defense)
+    if let Some(s) = spells.get_mut(&8017) {
+        s.name = "Earth Shield".to_string();
+        s.rank = None;
+        s.description = Some("Stit ze zeme na 15 s pro jednotku nebo hrdinu, na ktereho utoci nejvic nepratel (do 30 yd). Kdyz na nikoho nikdo neutoci, dostane ho tva jednotka s nejvic zivoty. V boss kole ho dostane spoluhrac s nejvic zivoty. Pohlti 100 poskozeni. Sili se silou kouzel a s levelem.".to_string());
+        s.aura_description = Some("Stit ze zeme na 15 s pro jednotku nebo hrdinu, na ktereho utoci nejvic nepratel (do 30 yd). Kdyz na nikoho nikdo neutoci, dostane ho tva jednotka s nejvic zivoty. V boss kole ho dostane spoluhrac s nejvic zivoty. Pohlti 100 poskozeni. Sili se silou kouzel a s levelem.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 41;
+        s.mana_cost = 8;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 10000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.duration_index = 8;
+        set_radius(s, 10);
+        set_effect(s, 0, 99, 1);
+        s.effects[0] = 3;
+        s.effect_implicit_target_a[0] = 1;
+        s.attributes = 327680;
+    }
+    // Bloodlust (support)
+    if let Some(s) = spells.get_mut(&21049) {
+        s.name = "Bloodlust".to_string();
+        s.rank = None;
+        s.description = Some("Na 10 s zrychli tvou nejsilnejsi jednotku do 30 yd (bez jednotek nejblizsiho spoluhrace, jinak tebe): utoci o 30 % rychleji a ma o 30 % kratsi cooldown schopnosti.".to_string());
+        s.aura_description = Some("Na 10 s zrychli tvou nejsilnejsi jednotku do 30 yd (bez jednotek nejblizsiho spoluhrace, jinak tebe): utoci o 30 % rychleji a ma o 30 % kratsi cooldown schopnosti.".to_string());
+        s.power_type = 0;
+        s.stances = 0;
+        s.stances_not = 0;
+        s.base_level = 1;
+        s.spell_level = 1;
+        s.max_level = 0;
+        s.effect_dice_per_level = [0; 3];
+        s.reagents = [(0, 0); 8];
+        s.totems = [0; 2];
+        s.equipped_item_class = -1;
+        s.equipped_item_subclass_mask = 0;
+        s.equipped_item_inventory_type_mask = 0;
+        s.spell_family = 11;
+        s.spell_family_flags |= 1u64 << 42;
+        s.mana_cost = 10;
+        s.casting_time_index = 1;
+        s.start_recovery_category = 0;
+        s.start_recovery_ms = 0;
+        s.recovery_ms = 20000;
+        s.category_recovery_ms = 0;
+        s.category = 0;
+        s.duration_index = 1;
+        set_radius(s, 10);
+        set_effect(s, 0, 29, 1);
+        s.effects[0] = 3;
+        s.effect_apply_aura[0] = 0;
+        s.effect_implicit_target_a[0] = 1;
+    }
     if let Some(s) = spells.get_mut(&23605) {
         s.effect_apply_aura[0] = 4;
+    }
+    if let Some(s) = spells.get_mut(&325) {
+        s.effect_apply_aura[0] = 4;
+    }
+    if let Some(s) = spells.get_mut(&17) {
+        s.effect_apply_aura[0] = 4;
+        s.effect_implicit_target_a[0] = 1;
     }
 }

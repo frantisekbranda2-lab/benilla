@@ -127,7 +127,7 @@ pub(crate) fn create_catalog(
         }
     }
     for race in catalog.races.iter().map(|r| r.id).collect::<Vec<_>>() {
-        // Hero Defense: kazda rasa muze byt kazdou z nasich 4 class a zadnou jinou (rasa je
+        // Hero Defense: kazda rasa muze byt kazdou z nasich 5 class a zadnou jinou (rasa je
         // jen vzhled; server jine classy odmitne). Puvodni seznam z CharBaseInfo se nepouzije.
         let _stock = create.class_list(race);
         let list: Vec<u8> = benilla_formats::HD_CLASS_NAMES.iter().map(|&(id, _)| id as u8).collect();
@@ -226,8 +226,8 @@ mod tests {
             tauren.faction,
             Some(("Horde".to_string(), "Horde".to_string()))
         );
-        // Hero Defense: kazda rasa ma nase 4 classy s vlastnimi nazvy.
-        assert_eq!(c.class_lists[&3], [1, 3, 8, 9]);
+        // Hero Defense: kazda rasa ma nasich 5 class s vlastnimi nazvy.
+        assert_eq!(c.class_lists[&3], [1, 3, 8, 9, 7]);
         assert_eq!(
             c.classes[&9],
             GlueCreateClass {
