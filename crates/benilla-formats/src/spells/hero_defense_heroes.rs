@@ -1510,8 +1510,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&17364) {
         s.name = "Quick Strike".to_string();
         s.rank = None;
-        s.description = Some("Uder obema sekerami: {dmgw:2} poskozeni sekerou v hlavni ruce a k tomu 50 % poskozeni sekery ve vedlejsi ruce. Spusti ocarovani obou seker. Jen se sekerou do jedne ruky v hlavni ruce.".to_string());
-        s.aura_description = Some("Uder obema sekerami: {dmgw:2} poskozeni sekerou v hlavni ruce a k tomu 50 % poskozeni sekery ve vedlejsi ruce. Spusti ocarovani obou seker. Jen se sekerou do jedne ruky v hlavni ruce.".to_string());
+        s.description = Some("Dva udery sekerami: hlavni rukou do cile za {dmgw:8} poskozeni a vedlejsi rukou do nejblizsiho dalsiho nepritele na dosah (50 % poskozeni te sekery + 8). Kdyz tam dalsi nepritel neni, jdou oba udery do cile. Kazdy uder spousti ocarovani seker. Cooldown zkracuje jen rychlost utoku (Flurry, Windfury Totem, Bloodlust). Jen se sekerou do jedne ruky v hlavni ruce.".to_string());
+        s.aura_description = Some("Dva udery sekerami: hlavni rukou do cile za {dmgw:8} poskozeni a vedlejsi rukou do nejblizsiho dalsiho nepritele na dosah (50 % poskozeni te sekery + 8). Kdyz tam dalsi nepritel neni, jdou oba udery do cile. Kazdy uder spousti ocarovani seker. Cooldown zkracuje jen rychlost utoku (Flurry, Windfury Totem, Bloodlust). Jen se sekerou do jedne ruky v hlavni ruce.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -1530,11 +1530,11 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
         s.casting_time_index = 1;
         s.start_recovery_category = 0;
         s.start_recovery_ms = 0;
-        s.recovery_ms = 1500;
+        s.recovery_ms = 1000;
         s.category_recovery_ms = 0;
         s.category = 0;
         s.range_index = 2;
-        set_effect(s, 0, 1, 1);
+        set_effect(s, 0, 7, 1);
         s.effects[1] = 0;
         s.effect_apply_aura[1] = 0;
         s.equipped_item_class = 2;
@@ -1544,8 +1544,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&8024) {
         s.name = "Fiery Weapon".to_string();
         s.rank = None;
-        s.description = Some("Ocaruje jednu tvou sekeru ohnem. Ocarovat jde jen sekeru do jedne ruky, hul ne. Zasah tou sekerou da 5 ohniveho poskozeni navic a zapali nepritele: 40 % zasahu behem 5 s. Samotne je na sekere v hlavni ruce. Spolu s Windfury Weapon je Windfury na hlavni a Fiery na vedlejsi ruce.".to_string());
-        s.aura_description = Some("Ocaruje jednu tvou sekeru ohnem. Ocarovat jde jen sekeru do jedne ruky, hul ne. Zasah tou sekerou da 5 ohniveho poskozeni navic a zapali nepritele: 40 % zasahu behem 5 s. Samotne je na sekere v hlavni ruce. Spolu s Windfury Weapon je Windfury na hlavni a Fiery na vedlejsi ruce.".to_string());
+        s.description = Some("Ocaruje obe tve sekery ohnem. Ocarovat jde jen sekery do jedne ruky, hul ne. Kazdy uder Quick Strike da 5 ohniveho poskozeni navic a zapali nepritele: 15 % zasahu behem 5 s. S Windfury Weapon se scita: sekery maji obe ocarovani naraz.".to_string());
+        s.aura_description = Some("Ocaruje obe tve sekery ohnem. Ocarovat jde jen sekery do jedne ruky, hul ne. Kazdy uder Quick Strike da 5 ohniveho poskozeni navic a zapali nepritele: 15 % zasahu behem 5 s. S Windfury Weapon se scita: sekery maji obe ocarovani naraz.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
@@ -1580,8 +1580,8 @@ pub(super) fn apply(spells: &mut HashMap<u32, SpellDisplay>) {
     if let Some(s) = spells.get_mut(&8232) {
         s.name = "Windfury Weapon".to_string();
         s.rank = None;
-        s.description = Some("Ocaruje jednu tvou sekeru vetrem. Ocarovat jde jen sekeru do jedne ruky, hul ne. Zasah tou sekerou ma 30 % sanci na vir: az 5 nepratel do 5 yd dostane poskozeni uderu + 10. Vzdy je na sekere v hlavni ruce. Spolu s Fiery Weapon je Fiery na vedlejsi ruce.".to_string());
-        s.aura_description = Some("Ocaruje jednu tvou sekeru vetrem. Ocarovat jde jen sekeru do jedne ruky, hul ne. Zasah tou sekerou ma 30 % sanci na vir: az 5 nepratel do 5 yd dostane poskozeni uderu + 10. Vzdy je na sekere v hlavni ruce. Spolu s Fiery Weapon je Fiery na vedlejsi ruce.".to_string());
+        s.description = Some("Ocaruje obe tve sekery vetrem. Ocarovat jde jen sekery do jedne ruky, hul ne. Kazdy uder Quick Strike ma 16 % sanci na vir: az 5 nepratel do 5 yd dostane poskozeni uderu + 10. S Fiery Weapon se scita: sekery maji obe ocarovani naraz.".to_string());
+        s.aura_description = Some("Ocaruje obe tve sekery vetrem. Ocarovat jde jen sekery do jedne ruky, hul ne. Kazdy uder Quick Strike ma 16 % sanci na vir: az 5 nepratel do 5 yd dostane poskozeni uderu + 10. S Fiery Weapon se scita: sekery maji obe ocarovani naraz.".to_string());
         s.power_type = 0;
         s.stances = 0;
         s.stances_not = 0;
